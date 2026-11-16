@@ -15,8 +15,24 @@ export function createFormatterConfig(options: OxfmtConfig = {}): OxfmtConfig {
     printWidth: 100,
     proseWrap: 'preserve',
     vueIndentScriptAndStyle: false,
-    sortImports: false,
-    sortPackageJson: false,
+    sortImports: {
+      groups: [
+        'type-import',
+        ['type-parent', 'type-sibling', 'type-index', 'type-internal'],
+        'value-builtin',
+        'value-external',
+        'value-internal',
+        ['value-parent', 'value-sibling', 'value-index'],
+        'side_effect',
+        'unknown',
+      ],
+      internalPattern: ['~/'],
+      newlinesBetween: false,
+      order: 'asc',
+      ignoreCase: true,
+      sortSideEffects: false,
+    },
+    sortPackageJson: true,
     ...options,
   }
 }

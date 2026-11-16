@@ -2,9 +2,21 @@
   "name": "@makvv4/oxlint-config",
   "version": "0.1.0",
   "description": "Native Oxlint presets for JavaScript, TypeScript, Vue, Nuxt and Node.js",
-  "type": "module",
+  "homepage": "https://github.com/makvv4/oxlint-config#readme",
+  "bugs": {
+    "url": "https://github.com/makvv4/oxlint-config/issues"
+  },
   "license": "MIT",
   "author": "makvv4",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/makvv4/oxlint-config.git"
+  },
+  "files": [
+    "dist",
+    "THIRD_PARTY_NOTICES"
+  ],
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -16,44 +28,35 @@
     },
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist"
-  ],
-  "engines": {
-    "node": "^22.18.0 || >=24.0.0"
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint src test scripts",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "test": "npm run build && node --test",
+    "compare:antfu": "npm run build && node scripts/compare-antfu.mjs",
+    "test:antfu-reference": "node scripts/check-antfu-reference.mjs",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "oxfmt": "0.78.0",
+    "oxlint": "1.93.0",
+    "typescript": "6.0.3"
   },
   "peerDependencies": {
-    "oxlint": "^1.93.0",
-    "oxfmt": "^0.78.0"
+    "oxfmt": "^0.78.0",
+    "oxlint": "^1.93.0"
   },
   "peerDependenciesMeta": {
     "oxfmt": {
       "optional": true
     }
   },
-  "devDependencies": {
-    "oxlint": "1.93.0",
-    "oxfmt": "0.78.0",
-    "typescript": "6.0.3"
-  },
-  "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit",
-    "lint": "oxlint src test",
-    "format": "oxfmt .",
-    "format:check": "oxfmt --check .",
-    "test": "npm run build && node --test",
-    "prepack": "npm run build"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/makvv4/oxlint-config.git"
-  },
-  "homepage": "https://github.com/makvv4/oxlint-config#readme",
-  "bugs": {
-    "url": "https://github.com/makvv4/oxlint-config/issues"
+  "engines": {
+    "node": "^22.18.0 || >=24.0.0"
   }
 }

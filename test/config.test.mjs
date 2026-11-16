@@ -16,7 +16,7 @@ function fixture(t, expression, files) {
   const configPath = join(directory, 'oxlint.config.mjs')
   writeFileSync(
     configPath,
-    `import createConfig, { base, typescript, vue, nuxt, node } from ${JSON.stringify(packageUrl)}\nexport default ${expression}\n`,
+    `import createConfig, { base, node, nuxt, typescript, vue } from ${JSON.stringify(packageUrl)}\n\nexport default ${expression}\n`,
   )
   for (const [name, source] of Object.entries(files)) {
     const filename = join(directory, name)
@@ -74,12 +74,12 @@ test('the base preset rejects debugger statements', t => {
   assert.ok(hasRule(report, 'eslint(no-debugger)'), JSON.stringify(report.diagnostics))
 })
 
-test('TypeScript array style is enforced and can be disabled as a preset', t => {
-  const files = { 'source.ts': 'export const values: Array<number> = [1, 2]\n' }
+test('TypeScript interface style follows Antfu and can be disabled as a preset', t => {
+  const files = { 'source.ts': 'export type Person = { name: string }\n' }
   const enabled = lint(fixture(t, 'typescript', files))
   assert.equal(enabled.status, 1)
   assert.ok(
-    hasRule(enabled.report, 'typescript(array-type)'),
+    hasRule(enabled.report, 'typescript(consistent-type-definitions)'),
     JSON.stringify(enabled.report.diagnostics),
   )
   const disabled = lint(fixture(t, 'createConfig({ typescript: false })', files))
@@ -241,7 +241,7 @@ test('configuration creation does not mutate inputs or shared presets', () => {
   assert.equal(second.rules['no-debugger'], 'off')
   assert.equal(second.env.browser, false)
   assert.equal(second.globals.projectName, false)
-  assert.deepEqual(second.overrides, [])
+  assert.deepEqual(second.overrides, createConfig(options).overrides)
   assert.deepEqual(presets, original)
 })
 
@@ -255,4 +255,43 @@ test('Vue template key validation is explicitly outside the native preset covera
   assert.equal(status, 0, JSON.stringify(report.diagnostics))
   assert.deepEqual(report.diagnostics, [])
   assert.equal(report.number_of_files, 1)
+})
+
+test('caller rules override preset file scopes and caller file overrides still run last', t => {
+  const files = {
+    'source.ts': 'export type Person = { name: string }\n',
+    'strict.ts': 'export type Person = { name: string }\n',
+  }
+  const { report } = lint(
+    fixture(
+      t,
+      "createConfig({}, { rules: { 'typescript/consistent-type-definitions': 'off' }, overrides: [{ files: ['strict.ts'], rules: { 'typescript/consistent-type-definitions': ['error', 'interface'] } }] })",
+      files,
+    ),
+  )
+  const hits = report.diagnostics.filter(d => d.code === 'typescript(consistent-type-definitions)')
+  assert.equal(hits.length, 1)
+  assert.equal(hits[0].filename, 'strict.ts')
+})
+
+test('disabling optional native presets removes their diagnostics', t => {
+  const files = {
+    'source.test.ts': "import { test } from 'vitest'\n\ntest.only('Works', () => {})\n",
+  }
+  const enabled = lint(fixture(t, 'createConfig()', files))
+  assert.ok(hasRule(enabled.report, 'vitest(no-focused-tests)'))
+  const disabled = lint(fixture(t, 'createConfig({ test: false })', files))
+  assert.equal(disabled.status, 0, JSON.stringify(disabled.report.diagnostics))
+})
+
+test('nested preset rule options are independent across factory calls', () => {
+  const first = createConfig()
+  first.rules['no-console'][1].allow.push('log')
+  first.overrides[0].rules['typescript/ban-ts-comment'][1]['ts-expect-error'] = false
+  const second = createConfig()
+  assert.deepEqual(second.rules['no-console'][1].allow, ['warn', 'error'])
+  assert.equal(
+    second.overrides[0].rules['typescript/ban-ts-comment'][1]['ts-expect-error'],
+    'allow-with-description',
+  )
 })

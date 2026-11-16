@@ -1,4 +1,14 @@
 import type { OxlintConfig } from 'oxlint'
+import {
+  importsRules,
+  javascriptRules,
+  jsdocRules,
+  nodeRules,
+  testRules,
+  typescriptRules,
+  unicornRules,
+  vueRules,
+} from './rules.js'
 
 export type { OxlintConfig } from 'oxlint'
 
@@ -9,12 +19,54 @@ export interface PresetOptions {
   vue?: boolean
   /** Enables Vue checks and excludes generated Nuxt directories. */
   nuxt?: boolean
-  /** Adds Node.js globals and rules. */
+  /** Node.js globals and rules are enabled by default, as in Antfu. */
   node?: boolean
+  /** Native import checks are enabled by default. */
+  imports?: boolean
+  /** Native Unicorn and modernization checks are enabled by default. */
+  unicorn?: boolean
+  /** Supported JSDoc checks are enabled by default at warning severity. */
+  jsdoc?: boolean
+  /** Vitest checks in test/spec/bench files are enabled by default. */
+  test?: boolean
 }
 
 /** Accepts every Oxlint configuration field, including extends and settings. */
 export type ConfigOverrides = OxlintConfig
+
+const sourceExtension = '{js,mjs,cjs,jsx,ts,mts,cts,tsx}'
+const testFiles = [
+  `**/__tests__/**/*.${sourceExtension}`,
+  `**/*.{test,spec,bench,benchmark}.${sourceExtension}`,
+]
+
+const ignoredDirectories = [
+  'node_modules',
+  'dist',
+  'output',
+  'coverage',
+  'temp',
+  '.temp',
+  'tmp',
+  '.tmp',
+  '.history',
+  '.vitepress/cache',
+  '.nuxt',
+  '.next',
+  '.svelte-kit',
+  '.vercel',
+  '.changeset',
+  '.idea',
+  '.cache',
+  '.output',
+  '.vite-inspect',
+  '.yarn',
+  '__snapshots__',
+  '.context',
+  '.claude',
+  '.agents',
+  '.*/skills',
+]
 
 /**
  * Returns a new self-contained configuration with no ESLint dependencies.
@@ -27,53 +79,107 @@ export function createConfig(
 ): OxlintConfig {
   const useTypescript = options.typescript ?? true
   const useVue = options.vue === true || options.nuxt === true
-  const plugins: NonNullable<OxlintConfig['plugins']> = ['eslint', 'unicorn', 'oxc']
-  const rules: NonNullable<OxlintConfig['rules']> = {
-    eqeqeq: ['error', 'always', { null: 'ignore' }],
-    'no-debugger': 'error',
-    'no-var': 'error',
-    'prefer-const': 'error',
-    'no-constant-binary-expression': 'error',
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+  const useNode = options.node ?? true
+  // The node plugin also supplies the native equivalent of antfu/no-top-level-await.
+  const plugins: NonNullable<OxlintConfig['plugins']> = ['eslint', 'node', 'oxc']
+  const rules = structuredClone(javascriptRules)
+  rules['node/no-top-level-await'] = 'error'
+  // Covers ordinary string escapes and part of regexp/no-useless-escape.
+  rules['no-useless-escape'] = 'error'
+  const fileOverrides: NonNullable<OxlintConfig['overrides']> = []
+
+  if (options.unicorn !== false) {
+    plugins.push('unicorn')
+    Object.assign(rules, structuredClone(unicornRules))
   }
+  if (options.imports !== false) {
+    plugins.push('import')
+    Object.assign(rules, structuredClone(importsRules))
+  }
+  if (options.jsdoc !== false) {
+    plugins.push('jsdoc')
+    Object.assign(rules, structuredClone(jsdocRules))
+  }
+  if (useNode) Object.assign(rules, structuredClone(nodeRules))
 
   if (useTypescript) {
     plugins.push('typescript')
-    Object.assign(rules, {
-      'typescript/array-type': ['error', { default: 'array' }],
-      'typescript/consistent-type-imports': 'error',
-      'typescript/no-import-type-side-effects': 'error',
+    fileOverrides.push({
+      files: ['**/*.{ts,mts,cts,tsx}', ...(useVue ? ['**/*.vue'] : [])],
+      rules: structuredClone(typescriptRules),
+    })
+    fileOverrides.push({
+      files: ['**/*.d.{ts,mts,cts}'],
+      rules: { 'no-unused-vars': 'off', 'oxc/no-const-enum': 'off' },
     })
   }
 
   if (useVue) {
     plugins.push('vue')
-    Object.assign(rules, {
-      'vue/no-export-in-script-setup': 'error',
-      'vue/no-async-in-computed-properties': 'error',
-      'vue/no-side-effects-in-computed-properties': 'error',
-      'vue/no-lifecycle-after-await': 'error',
-      'vue/no-watch-after-await': 'error',
-      'vue/no-expose-after-await': 'error',
+    fileOverrides.push({
+      files: ['**/*.vue'],
+      env: { vue: true },
+      globals: Object.fromEntries(
+        [
+          'computed',
+          'defineEmits',
+          'defineExpose',
+          'defineProps',
+          'onMounted',
+          'onUnmounted',
+          'reactive',
+          'ref',
+          'shallowReactive',
+          'shallowRef',
+          'toRef',
+          'toRefs',
+          'watch',
+          'watchEffect',
+        ].map(name => [name, 'readonly'] as const),
+      ),
+      rules: { ...structuredClone(vueRules), 'node/no-top-level-await': 'off' },
     })
   }
 
-  if (options.node) {
-    plugins.push('node')
-    Object.assign(rules, {
-      'node/no-exports-assign': 'error',
-      'node/no-new-require': 'error',
-      'unicorn/prefer-node-protocol': 'error',
+  if (options.test !== false) {
+    plugins.push('vitest')
+    fileOverrides.push({
+      files: [...testFiles],
+      rules: {
+        ...structuredClone(testRules),
+        'node/no-top-level-await': 'off',
+        'no-unused-expressions': 'off',
+      },
     })
   }
 
-  // Leave no-undef disabled: the project typecheck handles Nuxt auto-imports.
+  fileOverrides.push({
+    files: [
+      `**/scripts/**/*.${sourceExtension}`,
+      `**/cli/**/*.${sourceExtension}`,
+      `**/cli.${sourceExtension}`,
+      `**/*.config.${sourceExtension}`,
+      `**/*.config.*.${sourceExtension}`,
+    ],
+    rules: { 'no-console': 'off', 'node/no-top-level-await': 'off' },
+  })
+
   const config: OxlintConfig = {
     plugins,
-    categories: { correctness: 'error' },
+    // Select rules explicitly: Oxlint's correctness category adds rules Antfu does not enable.
+    categories: { correctness: 'off' },
     rules,
-    env: options.node ? { builtin: true, node: true } : { builtin: true },
-    ignorePatterns: ['**/node_modules/**', ...(options.nuxt ? ['.nuxt/**', '.output/**'] : [])],
+    env: { builtin: true, browser: true, node: useNode },
+    options: { reportUnusedDisableDirectives: 'error' },
+    ignorePatterns: [
+      ...ignoredDirectories.map(directory => `**/${directory}/**`),
+      '**/*.min.*',
+      '**/vite.config.*.timestamp-*',
+      '**/auto-import.d.ts',
+      '**/auto-imports.d.ts',
+      '**/components.d.ts',
+    ],
+    overrides: fileOverrides,
   }
 
   return {
@@ -83,7 +189,22 @@ export function createConfig(
     rules: { ...rules, ...overrides.rules },
     env: { ...config.env, ...overrides.env },
     globals: { ...config.globals, ...overrides.globals },
-    overrides: [...(config.overrides ?? []), ...(overrides.overrides ?? [])],
+    // A caller's global rule takes precedence over preset file-specific values too.
+    // Caller file overrides still run last, retaining ordinary Oxlint precedence.
+    overrides: [
+      ...fileOverrides.map(override => ({
+        ...override,
+        rules: {
+          ...override.rules,
+          ...Object.fromEntries(
+            Object.entries(overrides.rules ?? {}).filter(
+              ([name]) => name in (override.rules ?? {}),
+            ),
+          ),
+        },
+      })),
+      ...(overrides.overrides ?? []),
+    ],
   }
 }
 

@@ -1,0 +1,290 @@
+[
+  {
+    "id": "console-log",
+    "file": "source.js",
+    "source": "console.log('hello')\n",
+    "upstream": "no-console",
+    "native": "eslint(no-console)",
+    "report": true
+  },
+  {
+    "id": "console-warn",
+    "file": "source.js",
+    "source": "console.warn('hello')\n",
+    "upstream": "no-console",
+    "native": "eslint(no-console)",
+    "report": false
+  },
+  {
+    "id": "smart-equality",
+    "file": "source.js",
+    "source": "export function isString(value) { return typeof value == 'string' }\n",
+    "upstream": "eqeqeq",
+    "native": "eslint(eqeqeq)",
+    "report": false
+  },
+  {
+    "id": "loose-equality",
+    "file": "source.js",
+    "source": "export function same(a, b) { return a == b }\n",
+    "upstream": "eqeqeq",
+    "native": "eslint(eqeqeq)",
+    "report": true
+  },
+  {
+    "id": "empty-catch",
+    "file": "source.js",
+    "source": "try { JSON.parse('invalid') } catch {}\n",
+    "upstream": "no-empty",
+    "native": "eslint(no-empty)",
+    "report": false
+  },
+  {
+    "id": "rest-sibling",
+    "file": "source.js",
+    "source": "export function clean(user) { const { password, ...rest } = user; return rest }\n",
+    "upstream": "unused-imports/no-unused-vars",
+    "native": "eslint(no-unused-vars)",
+    "report": false
+  },
+  {
+    "id": "underscore-argument",
+    "file": "source.js",
+    "source": "export function run(_unused) { return 1 }\n",
+    "upstream": "unused-imports/no-unused-vars",
+    "native": "eslint(no-unused-vars)",
+    "report": false
+  },
+  {
+    "id": "unused-argument",
+    "file": "source.js",
+    "source": "export function run(unused) { return 1 }\n",
+    "upstream": "unused-imports/no-unused-vars",
+    "native": "eslint(no-unused-vars)",
+    "report": true
+  },
+  {
+    "id": "undefined-javascript",
+    "file": "source.js",
+    "source": "unknownGlobal()\n",
+    "upstream": "no-undef",
+    "native": "eslint(no-undef)",
+    "report": true
+  },
+  {
+    "id": "undefined-typescript",
+    "file": "source.ts",
+    "source": "unknownGlobal()\n",
+    "upstream": "no-undef",
+    "native": "eslint(no-undef)",
+    "report": false
+  },
+  {
+    "id": "short-circuit-expression",
+    "file": "source.js",
+    "source": "export function run(flag, callback) { flag && callback() }\n",
+    "upstream": "no-unused-expressions",
+    "native": "eslint(no-unused-expressions)",
+    "report": false
+  },
+  {
+    "id": "before-variable",
+    "file": "source.js",
+    "source": "export const before = later\nconst later = 1\n",
+    "upstream": "no-use-before-define",
+    "native": "eslint(no-use-before-define)",
+    "report": true
+  },
+  {
+    "id": "typescript-interface",
+    "file": "source.ts",
+    "source": "export type Person = { name: string }\n",
+    "upstream": "ts/consistent-type-definitions",
+    "native": "typescript(consistent-type-definitions)",
+    "report": true
+  },
+  {
+    "id": "typescript-array",
+    "file": "source.ts",
+    "source": "export const values: Array<number> = [1, 2]\n",
+    "upstream": "ts/array-type",
+    "native": "typescript(array-type)",
+    "report": false
+  },
+  {
+    "id": "typescript-any",
+    "file": "source.ts",
+    "source": "export const value: any = 1\n",
+    "upstream": "ts/no-explicit-any",
+    "native": "typescript(no-explicit-any)",
+    "report": false
+  },
+  {
+    "id": "typescript-method",
+    "file": "source.ts",
+    "source": "export interface Service { run(): void }\n",
+    "upstream": "ts/method-signature-style",
+    "native": "typescript(method-signature-style)",
+    "report": true
+  },
+  {
+    "id": "typescript-comment",
+    "file": "source.ts",
+    "source": "// @ts-expect-error\nexport const value: number = 'invalid'\n",
+    "upstream": "ts/ban-ts-comment",
+    "native": "typescript(ban-ts-comment)",
+    "report": true
+  },
+  {
+    "id": "typescript-comment-description",
+    "file": "source.ts",
+    "source": "// @ts-expect-error: deliberate invalid assignment\nexport const value: number = 'invalid'\n",
+    "upstream": "ts/ban-ts-comment",
+    "native": "typescript(ban-ts-comment)",
+    "report": false
+  },
+  {
+    "id": "typescript-enum",
+    "file": "source.ts",
+    "source": "export const enum Mode { One = 1 }\n",
+    "upstream": "no-restricted-syntax",
+    "native": "oxc(no-const-enum)",
+    "report": true
+  },
+  {
+    "id": "typescript-empty-interface",
+    "file": "source.ts",
+    "source": "export interface Empty {}\n",
+    "upstream": "ts/no-empty-object-type",
+    "native": "typescript(no-empty-object-type)",
+    "report": false
+  },
+  {
+    "id": "import-type-specifier",
+    "file": "source.ts",
+    "source": "import { type Person } from './types'\n\nexport type People = Person[]\n",
+    "upstream": "import/consistent-type-specifier-style",
+    "native": "import(consistent-type-specifier-style)",
+    "report": true
+  },
+  {
+    "id": "import-named-sort",
+    "file": "source.js",
+    "source": "import { z, a } from 'external'\n\nexport const values = [z, a]\n",
+    "upstream": "perfectionist/sort-named-imports",
+    "native": "eslint(sort-imports)",
+    "report": true
+  },
+  {
+    "id": "node-protocol",
+    "file": "source.js",
+    "source": "import fs from 'fs'\n\nexport const read = fs.readFile\n",
+    "upstream": "unicorn/prefer-node-protocol",
+    "native": "unicorn(prefer-node-protocol)",
+    "report": true
+  },
+  {
+    "id": "node-path",
+    "file": "source.js",
+    "source": "export const location = __dirname + '/file'\n",
+    "upstream": "node/no-path-concat",
+    "native": "node(no-path-concat)",
+    "report": true
+  },
+  {
+    "id": "modern-date",
+    "file": "source.js",
+    "source": "export const timestamp = new Date().getTime()\n",
+    "upstream": "e18e/prefer-date-now",
+    "native": "unicorn(prefer-date-now)",
+    "report": true
+  },
+  {
+    "id": "script-console",
+    "file": "scripts/generate.js",
+    "source": "console.log('hello')\n",
+    "upstream": "no-console",
+    "native": "eslint(no-console)",
+    "report": false
+  },
+  {
+    "id": "config-console",
+    "file": "vite.config.js",
+    "source": "console.log('hello')\n",
+    "upstream": "no-console",
+    "native": "eslint(no-console)",
+    "report": false
+  },
+  {
+    "id": "top-level-await",
+    "file": "source.js",
+    "source": "await Promise.resolve()\n",
+    "upstream": "antfu/no-top-level-await",
+    "native": "node(no-top-level-await)",
+    "report": true
+  },
+  {
+    "id": "script-await",
+    "file": "scripts/generate.js",
+    "source": "await Promise.resolve()\n",
+    "upstream": "antfu/no-top-level-await",
+    "native": "node(no-top-level-await)",
+    "report": false
+  },
+  {
+    "id": "vitest-focused",
+    "file": "source.test.ts",
+    "source": "import { it } from 'vitest'\n\nit.only('works', () => {})\n",
+    "upstream": "test/no-only-tests",
+    "native": "vitest(no-focused-tests)",
+    "report": true
+  },
+  {
+    "id": "vitest-title",
+    "file": "source.test.ts",
+    "source": "import { it } from 'vitest'\n\nit('Works', () => {})\n",
+    "upstream": "test/prefer-lowercase-title",
+    "native": "vitest(prefer-lowercase-title)",
+    "report": true
+  },
+  {
+    "id": "vitest-function",
+    "file": "source.test.ts",
+    "source": "import { test } from 'vitest'\n\ntest('works', () => {})\n",
+    "upstream": "test/consistent-test-it",
+    "native": "vitest(consistent-test-it)",
+    "report": true
+  },
+  {
+    "id": "declaration-unused",
+    "file": "source.d.ts",
+    "source": "interface PrivateType { name: string }\nexport {}\n",
+    "upstream": "unused-imports/no-unused-vars",
+    "native": "eslint(no-unused-vars)",
+    "report": false
+  },
+  {
+    "id": "vue-async-computed",
+    "file": "Component.vue",
+    "source": "<script setup lang=\"ts\">\nimport { computed } from 'vue'\n\nconst value = computed(async () => 1)\n</script>\n<template><div>{{ value }}</div></template>\n",
+    "upstream": "vue/no-async-in-computed-properties",
+    "native": "vue(no-async-in-computed-properties)",
+    "report": true
+  },
+  {
+    "id": "vue-optional-prop",
+    "file": "Component.vue",
+    "source": "<script setup>\ndefineProps({ label: String })\n</script>\n<template><div /></template>\n",
+    "upstream": "vue/require-default-prop",
+    "native": "vue(require-default-prop)",
+    "report": false
+  },
+  {
+    "id": "jsdoc-property",
+    "file": "source.js",
+    "source": "/** @property value */\nexport const metadata = {}\n",
+    "upstream": "jsdoc/require-property-description",
+    "native": "jsdoc(require-property-description)",
+    "report": true
+  }
+]

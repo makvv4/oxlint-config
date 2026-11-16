@@ -4,6 +4,8 @@
 
 This is the standalone `@makvv4/oxlint-config` package. It provides native Oxlint presets and an optional Oxfmt configuration. It has its own Git repository, package manifest, lockfile, tests, and CI.
 
+- Read [project context](docs/project-context.md) for the implementation snapshot, design decisions, validation, and Antfu comparison. Recheck time-sensitive facts before relying on them.
+- Chat replies may be in Russian.
 - Keep all project files, documentation, comments, examples, and commit messages in English. Do not introduce Cyrillic text.
 - Use npm and preserve `package-lock.json`. Check `package.json` for supported Node.js versions and dependency ranges.
 - Keep the package free of runtime dependencies on ESLint and its plugins.
