@@ -1,0 +1,59 @@
+{
+  "name": "@makvv4/oxlint-config",
+  "version": "0.1.0",
+  "description": "Native Oxlint presets for JavaScript, TypeScript, Vue, Nuxt and Node.js",
+  "type": "module",
+  "license": "MIT",
+  "author": "makvv4",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./formatter": {
+      "types": "./dist/formatter.d.ts",
+      "import": "./dist/formatter.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": "^22.18.0 || >=24.0.0"
+  },
+  "peerDependencies": {
+    "oxlint": "^1.93.0",
+    "oxfmt": "^0.78.0"
+  },
+  "peerDependenciesMeta": {
+    "oxfmt": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "oxlint": "1.93.0",
+    "oxfmt": "0.78.0",
+    "typescript": "6.0.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint src test",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "test": "npm run build && node --test",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/makvv4/oxlint-config.git"
+  },
+  "homepage": "https://github.com/makvv4/oxlint-config#readme",
+  "bugs": {
+    "url": "https://github.com/makvv4/oxlint-config/issues"
+  }
+}
