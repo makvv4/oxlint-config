@@ -16,7 +16,7 @@ export const javascriptRules: Rules = {
   'block-scoped-var': 'error',
   'constructor-super': 'error',
   'default-case-last': 'error',
-  eqeqeq: ['error', 'smart'],
+  'eqeqeq': ['error', 'smart'],
   'new-cap': [
     'error',
     {
@@ -242,7 +242,7 @@ export const javascriptRules: Rules = {
     },
   ],
   'vars-on-top': 'error',
-  yoda: ['error', 'never'],
+  'yoda': ['error', 'never'],
 }
 
 export const unicornRules: Rules = {
@@ -426,4 +426,8 @@ export const testRules: Rules = {
   'vitest/no-focused-tests': 'error',
   'vitest/prefer-hooks-in-order': 'error',
   'vitest/prefer-lowercase-title': 'error',
+}
+
+export const jsxRules: Rules = {
+  'react/jsx-curly-brace-presence': ['error', { propElementValues: 'always' }],
 }

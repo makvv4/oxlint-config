@@ -50,7 +50,7 @@ export default createConfig(
 
 The Nuxt preset enables Vue script checks. It does not register Nuxt auto-imported globals; keep `nuxt typecheck` in your project. JavaScript files using Nuxt auto-imports need consumer-supplied `globals` or a `no-undef` override.
 
-Standalone presets are also available: `base`, `typescript`, `vue`, `nuxt`, and `node`.
+Standalone presets are also available: `base`, `typescript`, `vue`, `nuxt`, `node`, `lib`, `typeAware`, `react`, `nextjs`, and `accessibility`.
 
 ```ts
 import { vue } from '@makvv4/oxlint-config'
@@ -58,18 +58,42 @@ import { vue } from '@makvv4/oxlint-config'
 export default vue
 ```
 
-| `createConfig` option | Default | Purpose                                         |
-| --------------------- | ------- | ----------------------------------------------- |
-| `typescript`          | `true`  | TypeScript rules                                |
-| `vue`                 | `false` | Native rules for Vue script blocks              |
-| `nuxt`                | `false` | Enables Vue and ignores Nuxt build directories  |
-| `node`                | `true`  | Node.js globals and available native Node rules |
-| `imports`             | `true`  | Native import checks and named-member sorting   |
-| `unicorn`             | `true`  | Unicorn rules and selected modernization checks |
-| `jsdoc`               | `true`  | Available JSDoc checks at warning severity      |
-| `test`                | `true`  | Vitest checks scoped to test files              |
+| `createConfig` option | Default | Purpose                                                                    |
+| --------------------- | ------- | -------------------------------------------------------------------------- |
+| `typescript`          | `true`  | TypeScript rules                                                           |
+| `vue`                 | `false` | Native rules for Vue script blocks                                         |
+| `nuxt`                | `false` | Enables Vue and ignores Nuxt build directories                             |
+| `node`                | `true`  | Node.js globals and available native Node rules                            |
+| `imports`             | `true`  | Native import checks and named-member sorting                              |
+| `unicorn`             | `true`  | Unicorn rules and selected modernization checks                            |
+| `jsdoc`               | `true`  | Available JSDoc checks at warning severity                                 |
+| `jsx`                 | `true`  | Native JSX style checks in JSX/TSX files; no React framework preset        |
+| `test`                | `true`  | Vitest checks scoped to test files                                         |
+| `type`                | `'app'` | `'lib'` requires explicit function return types in TypeScript library code |
+| `typeAware`           | `false` | Type-dependent TS rules; requires the optional `oxlint-tsgolint` engine    |
+| `react`               | `false` | Available native React, hooks, compiler, and Fast Refresh checks           |
+| `nextjs`              | `false` | Available Next.js recommended and Core Web Vitals checks                   |
+| `accessibility`       | `false` | JSX accessibility rules in JSX/TSX, independent of React and JSX style     |
 
 `nuxt: true` enables Vue even when `vue: false`. The `node` preset also includes TypeScript; for plain JavaScript, use `createConfig({ node: true, typescript: false })`.
+
+### Libraries and optional checks
+
+For a React component library, install the type-aware engine in the project where you run Oxlint:
+
+```sh
+npm install --save-dev oxlint-tsgolint@^7.0.2007
+```
+
+```ts
+import { createConfig } from '@makvv4/oxlint-config'
+
+export default createConfig({ type: 'lib', typeAware: true, react: true, accessibility: true })
+```
+
+Run `npx oxlint .` from the project with its `tsconfig.json`. The config enables type-aware linting without a CLI flag. It selects 19 typed rules for TS, TSX, MTS and CTS, including floating promises and unsafe assignments. `typescript: false` disables both library return-type checks and typed lint. Keep your existing typecheck for compiler diagnostics. If you replace the native `options` object in the second argument, retain `typeAware: true` there to keep the engine enabled.
+
+Library mode allows inferred returns for callbacks, typed expressions, higher-order functions and IIFEs. It exempts Vue scripts, `scripts/`, config files and, with the test preset enabled, test files. CLI files have no blanket exemption. For a Next.js app use `createConfig({ react: true, nextjs: true, accessibility: true })`; the flags are independent. Enabling React and Next together allows Next route exports such as `metadata` under Fast Refresh. None of these framework checks require another plugin package.
 
 ### Overriding configuration
 
@@ -95,6 +119,10 @@ export default formatter
 ```
 
 Style: two-space indentation, single quotes, no semicolons, trailing commas, LF line endings, and a print width of 100 characters. Import sorting uses Antfu-like groups; package.json field/dependency sorting is enabled. Side-effect imports and package scripts retain their order. Set `sortImports: false` or `sortPackageJson: false` to disable sorting.
+
+Object property quotes are consistent, and wrapped binary operators start their lines. Embedded HTML/CSS/GraphQL in JS/TS strings is preserved by default; Vue script and style blocks are still formatted. Set `embeddedLanguageFormatting: 'auto'` to format embedded source strings too. A supplied `overrides` array replaces the default file scope, including `overrides: []`. These file scopes require the Oxfmt CLI/config resolver; the low-level `format()` API does not resolve them.
+
+Astro and Svelte formatting are opt-in through `astro: true` / `svelte: true`, with `@astrojs/compiler-rs` / `svelte` installed in the consuming project. They do not require ESLint. Core Oxlint checks already support their script blocks; dedicated framework template presets are not provided.
 
 To configure Tailwind CSS 4 while keeping the preset's import groups:
 
@@ -130,8 +158,9 @@ Add these scripts to your project:
 - This is a native approximation, not full Antfu compatibility. See the [rule comparison and measured test results](docs/antfu-compatibility.md).
 - Oxlint does not currently lint Vue templates: a missing `key` on `v-for` may pass linting. The Vue preset does not claim to be equivalent to eslint-plugin-vue.
 - Oxfmt formats Vue files but does not check template correctness. It also does not reproduce every Antfu rule, such as `reasonable-newline` and `top-level-function`.
+- Oxlint 1.93 skips `prefer-const` in Vue/Svelte because template assignments are invisible to script analysis. It also lacks Antfu's Vue ref-operand check, so expressions needing `.value` can pass. See the [audit of all 16 original fixture differences](docs/antfu-fixture-differences.md).
 - Class sorting does not replace the other checks in eslint-plugin-tailwindcss, such as shorthand usage, the position of `!`, and unnecessary arbitrary values.
-- Type-aware linting and `oxlint-tsgolint` are not enabled. Keep `tsc`, `vue-tsc`, or `nuxt typecheck` in your project.
+- Type-aware analysis is opt-in and does not cover Vue templates. React framework checks cover a subset of the Antfu plugin; Next.js lacks its relative location assignment rule.
 - Export sorting, natural named-import ordering, tsconfig sorting, and semantic linting for JSON/YAML/TOML/Markdown are not reproduced. Oxfmt's wrapping and brace layout differ from Antfu.
 - Loading existing ESLint plugins through `jsPlugins` can bring back their transitive dependencies. This package does not guarantee a clean audit for your entire project.
 
@@ -147,6 +176,8 @@ npm pack
 ```
 
 `npm run compare:antfu` runs the real native tools on 18 vendored Antfu fixtures and reports exact matches and remaining diagnostics. Normal tests include 36 behavior expectations verified against Antfu 10.0.0. An optional isolated Antfu reference runner is documented in the comparison; ESLint is not added to this package's dependencies.
+
+The comparison repeats safe lint fixes until stable, then invokes the real formatter CLI. Overlapping edits can require multiple `oxlint --fix` invocations in consumers too. Use `npm run compare:antfu -- --details-dir /tmp/antfu-review` with a new directory to retain every expected/actual file and a JSON report. The default run has three exact matches among 14 formatted files; skipped files and unchanged upstream inputs are identified separately.
 
 `npm pack` builds JavaScript and type declarations into `dist`. The tarball contains only `dist`, package.json, README, LICENSE, and THIRD_PARTY_NOTICES. Publishing is a separate manual step. There are no install or postinstall scripts.
 

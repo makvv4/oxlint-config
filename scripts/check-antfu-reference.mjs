@@ -1,8 +1,18 @@
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { createRequire } from 'node:module'
-import { resolve } from 'node:path'
+import { tmpdir } from 'node:os'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { readCases } from './behavior-cases.mjs'
 
 // The oracle is deliberately installed outside this package and its dependency graph.
 const directory = process.argv[2]
@@ -16,30 +26,70 @@ const { default: antfu } = await import(
 )
 const { ESLint } = await import(pathToFileURL(requireOracle.resolve('eslint')))
 assert.equal(requireOracle('@antfu/eslint-config/package.json').version, '10.0.0')
-const linter = new ESLint({
-  cwd: resolve(directory),
-  overrideConfigFile: true,
-  overrideConfig: await antfu({ typescript: true, vue: true, isInEditor: false, gitignore: false }),
-})
-const cases = JSON.parse(
-  readFileSync(new URL('../fixtures/antfu-behavior.json', import.meta.url), 'utf8'),
-)
-for (const entry of cases) {
-  const [result] = await linter.lintText(entry.source, { filePath: entry.file })
-  assert.equal(
-    result.messages.some(message => message.ruleId === entry.upstream),
-    entry.report,
-    `${entry.id}: ${JSON.stringify(result.messages)}`,
-  )
+const defaults = { typescript: true, vue: true, isInEditor: false, gitignore: false }
+const frameworks = readCases('frameworks')
+async function checkCases(name, cases, options = {}, { typed = false } = {}) {
+  const project = realpathSync(mkdtempSync(join(tmpdir(), 'antfu-reference-cases-')))
+  try {
+    if (options.nextjs) mkdirSync(join(project, 'pages'))
+    for (const entry of cases) {
+      const filename = join(project, entry.id, entry.file)
+      mkdirSync(dirname(filename), { recursive: true })
+      writeFileSync(filename, entry.source)
+    }
+    if (typed) {
+      writeFileSync(
+        join(project, 'tsconfig.json'),
+        JSON.stringify({ compilerOptions: { strict: true, target: 'ES2022', module: 'NodeNext' } }),
+      )
+      options = {
+        ...options,
+        typescript: { tsconfigPath: 'tsconfig.json', parserOptions: { tsconfigRootDir: project } },
+      }
+    }
+    const linter = new ESLint({
+      cwd: project,
+      overrideConfigFile: true,
+      overrideConfig: await antfu({ ...defaults, ...options }),
+    })
+    for (const entry of cases) {
+      const [result] = await linter.lintFiles([join(project, entry.id, entry.file)])
+      const details = `${entry.id}: ${JSON.stringify(result.messages)}`
+      assert.equal(result.fatalErrorCount, 0, details)
+      assert.ok(
+        result.messages.every(message => message.ruleId !== null),
+        details,
+      )
+      const matches = result.messages.filter(message => message.ruleId === entry.upstream)
+      assert.equal(matches.length > 0, entry.report, details)
+      if (entry.report && entry.severity)
+        assert.ok(
+          matches.every(message => message.severity === entry.severity),
+          details,
+        )
+    }
+    console.log(`Antfu 10.0.0: ${cases.length} ${name} behavior expectations verified`)
+  } finally {
+    rmSync(project, { recursive: true, force: true })
+  }
 }
-console.log(`Antfu 10.0.0: ${cases.length} behavior expectations verified`)
+await checkCases('default', readCases('behavior'))
+await checkCases('library', readCases('lib'), { type: 'lib' })
+await checkCases('type-aware', readCases('type-aware'), {}, { typed: true })
+await checkCases('accessibility', readCases('accessibility'), { jsx: { a11y: true } })
+for (const profile of ['react', 'nextjs'])
+  await checkCases(
+    profile,
+    frameworks.filter(entry => entry.profile === profile),
+    { [profile]: true },
+  )
 
 const fixtureRoot = fileURLToPath(new URL('../fixtures/antfu/', import.meta.url))
 const fixer = new ESLint({
   cwd: resolve(directory),
   overrideConfigFile: true,
   fix: true,
-  overrideConfig: await antfu({ typescript: true, vue: true, isInEditor: false, gitignore: false }),
+  overrideConfig: await antfu(defaults),
 })
 const files = ['javascript.js', 'typescript.ts', 'jsx.jsx', 'tsx.tsx', 'vue.vue', 'vue-ts.vue']
 for (const file of files) {

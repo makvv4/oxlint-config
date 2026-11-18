@@ -45,14 +45,19 @@
   "devDependencies": {
     "oxfmt": "0.78.0",
     "oxlint": "1.93.0",
+    "oxlint-tsgolint": "7.0.2007",
     "typescript": "6.0.3"
   },
   "peerDependencies": {
     "oxfmt": "^0.78.0",
-    "oxlint": "^1.93.0"
+    "oxlint": "^1.93.0",
+    "oxlint-tsgolint": "^7.0.2007"
   },
   "peerDependenciesMeta": {
     "oxfmt": {
+      "optional": true
+    },
+    "oxlint-tsgolint": {
       "optional": true
     }
   },

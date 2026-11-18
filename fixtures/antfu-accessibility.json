@@ -1,0 +1,78 @@
+[
+  {
+    "id": "missing-alt",
+    "file": "Image.tsx",
+    "source": "export const image = <img src=\"/photo.jpg\" />\n",
+    "upstream": "jsx-a11y/alt-text",
+    "native": "jsx-a11y(alt-text)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "decorative-image",
+    "file": "Image.jsx",
+    "source": "export const image = <img src=\"/photo.jpg\" alt=\"\" />\n",
+    "upstream": "jsx-a11y/alt-text",
+    "native": "jsx-a11y(alt-text)",
+    "report": false
+  },
+  {
+    "id": "invalid-aria",
+    "file": "Widget.jsx",
+    "source": "export const widget = <span aria-lable=\"Open\" />\n",
+    "upstream": "jsx-a11y/aria-props",
+    "native": "jsx-a11y(aria-props)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "keyboard-events",
+    "file": "Widget.tsx",
+    "source": "export const widget = <div onClick={() => {}}>Open</div>\n",
+    "upstream": "jsx-a11y/click-events-have-key-events",
+    "native": "jsx-a11y(click-events-have-key-events)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "noninteractive-key-handler",
+    "file": "Item.jsx",
+    "source": "export const item = <li onKeyDown={() => {}}>Row</li>\n",
+    "upstream": "jsx-a11y/no-noninteractive-element-interactions",
+    "native": "jsx-a11y(no-noninteractive-element-interactions)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "image-load-handler",
+    "file": "Image.jsx",
+    "source": "export const image = <img src=\"/photo.jpg\" alt=\"\" onLoad={() => {}} />\n",
+    "upstream": "jsx-a11y/no-noninteractive-element-interactions",
+    "native": "jsx-a11y(no-noninteractive-element-interactions)",
+    "report": false
+  },
+  {
+    "id": "listbox-role",
+    "file": "Menu.tsx",
+    "source": "export const menu = <ul role=\"listbox\" />\n",
+    "upstream": "jsx-a11y/no-noninteractive-element-to-interactive-role",
+    "native": "jsx-a11y(no-noninteractive-element-to-interactive-role)",
+    "report": false
+  },
+  {
+    "id": "control-label-off",
+    "file": "Button.jsx",
+    "source": "export const button = <button />\n",
+    "upstream": "jsx-a11y/control-has-associated-label",
+    "native": "jsx-a11y(control-has-associated-label)",
+    "report": false
+  },
+  {
+    "id": "vue-template",
+    "file": "Example.vue",
+    "source": "<script setup>\nconst src = '/photo.jpg'\n</script>\n<template><img :src=\"src\"></template>\n",
+    "upstream": "jsx-a11y/alt-text",
+    "native": "jsx-a11y(alt-text)",
+    "report": false
+  }
+]

@@ -1,0 +1,218 @@
+[
+  {
+    "id": "await-thenable",
+    "file": "source.ts",
+    "source": "export async function load() { return await 1 }\n",
+    "upstream": "ts/await-thenable",
+    "native": "typescript(await-thenable)",
+    "report": true
+  },
+  {
+    "id": "dot-notation",
+    "file": "source.ts",
+    "source": "export const value = { answer: 42 }['answer']\n",
+    "upstream": "ts/dot-notation",
+    "native": "typescript(dot-notation)",
+    "report": true
+  },
+  {
+    "id": "no-floating-promises",
+    "file": "source.ts",
+    "source": "Promise.resolve(1)\nexport {}\n",
+    "upstream": "ts/no-floating-promises",
+    "native": "typescript(no-floating-promises)",
+    "report": true
+  },
+  {
+    "id": "no-for-in-array",
+    "file": "source.ts",
+    "source": "export function firstKey(values: string[]) { for (const key in values) return key }\n",
+    "upstream": "ts/no-for-in-array",
+    "native": "typescript(no-for-in-array)",
+    "report": true
+  },
+  {
+    "id": "no-implied-eval",
+    "file": "source.ts",
+    "source": "setTimeout('run()', 0)\nexport {}\n",
+    "upstream": "ts/no-implied-eval",
+    "native": "typescript(no-implied-eval)",
+    "report": true
+  },
+  {
+    "id": "no-misused-promises",
+    "file": "source.ts",
+    "source": "export const values = [1, 2]\nvalues.forEach(async value => { await Promise.resolve(value) })\n",
+    "upstream": "ts/no-misused-promises",
+    "native": "typescript(no-misused-promises)",
+    "report": true
+  },
+  {
+    "id": "no-unnecessary-type-assertion",
+    "file": "source.ts",
+    "source": "declare const value: string\nexport const text = value as string\n",
+    "upstream": "ts/no-unnecessary-type-assertion",
+    "native": "typescript(no-unnecessary-type-assertion)",
+    "report": true
+  },
+  {
+    "id": "no-unsafe-argument",
+    "file": "source.ts",
+    "source": "declare const value: any\nexport const parsed = Number.parseInt(value)\n",
+    "upstream": "ts/no-unsafe-argument",
+    "native": "typescript(no-unsafe-argument)",
+    "report": true
+  },
+  {
+    "id": "no-unsafe-assignment",
+    "file": "source.ts",
+    "source": "declare const value: any\nexport const text: string = value\n",
+    "upstream": "ts/no-unsafe-assignment",
+    "native": "typescript(no-unsafe-assignment)",
+    "report": true
+  },
+  {
+    "id": "no-unsafe-call",
+    "file": "source.ts",
+    "source": "declare const action: any\naction()\nexport {}\n",
+    "upstream": "ts/no-unsafe-call",
+    "native": "typescript(no-unsafe-call)",
+    "report": true
+  },
+  {
+    "id": "no-unsafe-member-access",
+    "file": "source.ts",
+    "source": "declare const value: any\nexport const name = value.name\n",
+    "upstream": "ts/no-unsafe-member-access",
+    "native": "typescript(no-unsafe-member-access)",
+    "report": true
+  },
+  {
+    "id": "no-unsafe-return",
+    "file": "source.ts",
+    "source": "export function load(value: any): string { return value }\n",
+    "upstream": "ts/no-unsafe-return",
+    "native": "typescript(no-unsafe-return)",
+    "report": true
+  },
+  {
+    "id": "promise-function-async",
+    "file": "source.ts",
+    "source": "export function load() { return Promise.resolve(1) }\n",
+    "upstream": "ts/promise-function-async",
+    "native": "typescript(promise-function-async)",
+    "report": true
+  },
+  {
+    "id": "restrict-plus-operands",
+    "file": "source.ts",
+    "source": "declare const left: number\ndeclare const right: bigint\nexport const value = left + right\n",
+    "upstream": "ts/restrict-plus-operands",
+    "native": "typescript(restrict-plus-operands)",
+    "report": true
+  },
+  {
+    "id": "restrict-template-expressions",
+    "file": "source.ts",
+    "source": "export const value = `${{ name: 'test' }}`\n",
+    "upstream": "ts/restrict-template-expressions",
+    "native": "typescript(restrict-template-expressions)",
+    "report": true
+  },
+  {
+    "id": "return-await",
+    "file": "source.ts",
+    "source": "export async function load() { try { return Promise.reject(new Error('failed')) } catch { return 0 } }\n",
+    "upstream": "ts/return-await",
+    "native": "typescript(return-await)",
+    "report": true
+  },
+  {
+    "id": "strict-boolean-expressions",
+    "file": "source.ts",
+    "source": "declare const value: string | null\nexport const result = value ? 'yes' : 'no'\n",
+    "upstream": "ts/strict-boolean-expressions",
+    "native": "typescript(strict-boolean-expressions)",
+    "report": true
+  },
+  {
+    "id": "switch-exhaustiveness-check",
+    "file": "source.ts",
+    "source": "export type Status = 'idle' | 'ready'\nexport function describe(status: Status) { switch (status) { case 'idle': return 'idle' } }\n",
+    "upstream": "ts/switch-exhaustiveness-check",
+    "native": "typescript(switch-exhaustiveness-check)",
+    "report": true
+  },
+  {
+    "id": "unbound-method",
+    "file": "source.ts",
+    "source": "export class Runner { run() { return this } }\nexport const execute = new Runner().run\n",
+    "upstream": "ts/unbound-method",
+    "native": "typescript(unbound-method)",
+    "report": true
+  },
+  {
+    "id": "await-thenable-accepts-promise",
+    "file": "source.ts",
+    "source": "export async function load() { return await Promise.resolve(1) }\n",
+    "upstream": "ts/await-thenable",
+    "native": "typescript(await-thenable)",
+    "report": false
+  },
+  {
+    "id": "no-floating-promises-accepts-void",
+    "file": "source.ts",
+    "source": "void Promise.resolve(1)\nexport {}\n",
+    "upstream": "ts/no-floating-promises",
+    "native": "typescript(no-floating-promises)",
+    "report": false
+  },
+  {
+    "id": "no-misused-promises-accepts-sync-callback",
+    "file": "source.ts",
+    "source": "export const values = [1, 2]\nvalues.forEach(value => { void Promise.resolve(value) })\n",
+    "upstream": "ts/no-misused-promises",
+    "native": "typescript(no-misused-promises)",
+    "report": false
+  },
+  {
+    "id": "strict-boolean-expressions-allows-nullable-boolean",
+    "file": "source.ts",
+    "source": "declare const value: boolean | null\nexport const result = value ? 'yes' : 'no'\n",
+    "upstream": "ts/strict-boolean-expressions",
+    "native": "typescript(strict-boolean-expressions)",
+    "report": false
+  },
+  {
+    "id": "strict-boolean-expressions-allows-nullable-object",
+    "file": "source.ts",
+    "source": "declare const value: { name: string } | null\nexport const result = value ? 'yes' : 'no'\n",
+    "upstream": "ts/strict-boolean-expressions",
+    "native": "typescript(strict-boolean-expressions)",
+    "report": false
+  },
+  {
+    "id": "return-await-allows-outside-try",
+    "file": "source.ts",
+    "source": "export async function load() { return Promise.resolve(1) }\n",
+    "upstream": "ts/return-await",
+    "native": "typescript(return-await)",
+    "report": false
+  },
+  {
+    "id": "unrelated-default-no-array-delete-stays-off",
+    "file": "source.ts",
+    "source": "export function remove(values: string[]) { delete values[0] }\n",
+    "upstream": "ts/no-array-delete",
+    "native": "typescript(no-array-delete)",
+    "report": false
+  },
+  {
+    "id": "unrelated-default-no-base-to-string-stays-off",
+    "file": "source.ts",
+    "source": "export const text = String({ name: 'value' })\n",
+    "upstream": "ts/no-base-to-string",
+    "native": "typescript(no-base-to-string)",
+    "report": false
+  }
+]

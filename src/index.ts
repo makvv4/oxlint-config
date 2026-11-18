@@ -1,18 +1,27 @@
 import type { OxlintConfig } from 'oxlint'
+import { accessibilityRules } from './accessibility.js'
+import { createReactRules, nextjsRules } from './frameworks.js'
 import {
   importsRules,
   javascriptRules,
   jsdocRules,
+  jsxRules,
   nodeRules,
   testRules,
   typescriptRules,
   unicornRules,
   vueRules,
 } from './rules.js'
+import { typeAwareRules } from './type-aware.js'
 
 export type { OxlintConfig } from 'oxlint'
 
 export interface PresetOptions {
+  type?: 'app' | 'lib'
+  typeAware?: boolean
+  react?: boolean
+  nextjs?: boolean
+  accessibility?: boolean
   /** TypeScript is enabled by default. */
   typescript?: boolean
   /** Checks Vue script blocks; Oxlint does not lint templates. */
@@ -27,6 +36,8 @@ export interface PresetOptions {
   unicorn?: boolean
   /** Supported JSDoc checks are enabled by default at warning severity. */
   jsdoc?: boolean
+  /** Native JSX style checks are enabled by default for JSX/TSX files. */
+  jsx?: boolean
   /** Vitest checks in test/spec/bench files are enabled by default. */
   test?: boolean
 }
@@ -35,6 +46,9 @@ export interface PresetOptions {
 export type ConfigOverrides = OxlintConfig
 
 const sourceExtension = '{js,mjs,cjs,jsx,ts,mts,cts,tsx}'
+const tsFiles = '**/*.{ts,mts,cts,tsx}'
+const scriptFiles = `**/scripts/**/*.${sourceExtension}`
+const configFiles = [`**/*.config.${sourceExtension}`, `**/*.config.*.${sourceExtension}`]
 const testFiles = [
   `**/__tests__/**/*.${sourceExtension}`,
   `**/*.{test,spec,bench,benchmark}.${sourceExtension}`,
@@ -84,8 +98,6 @@ export function createConfig(
   const plugins: NonNullable<OxlintConfig['plugins']> = ['eslint', 'node', 'oxc']
   const rules = structuredClone(javascriptRules)
   rules['node/no-top-level-await'] = 'error'
-  // Covers ordinary string escapes and part of regexp/no-useless-escape.
-  rules['no-useless-escape'] = 'error'
   const fileOverrides: NonNullable<OxlintConfig['overrides']> = []
 
   if (options.unicorn !== false) {
@@ -104,8 +116,23 @@ export function createConfig(
 
   if (useTypescript) {
     plugins.push('typescript')
+    if (options.type === 'lib') {
+      fileOverrides.push({
+        files: [tsFiles],
+        excludeFiles: [scriptFiles, ...configFiles, ...(options.test !== false ? testFiles : [])],
+        rules: {
+          'typescript/explicit-function-return-type': [
+            'error',
+            { allowExpressions: true, allowHigherOrderFunctions: true, allowIIFEs: true },
+          ],
+        },
+      })
+    }
+    if (options.typeAware) {
+      fileOverrides.push({ files: [tsFiles], rules: structuredClone(typeAwareRules) })
+    }
     fileOverrides.push({
-      files: ['**/*.{ts,mts,cts,tsx}', ...(useVue ? ['**/*.vue'] : [])],
+      files: [tsFiles, ...(useVue ? ['**/*.vue'] : [])],
       rules: structuredClone(typescriptRules),
     })
     fileOverrides.push({
@@ -141,6 +168,28 @@ export function createConfig(
     })
   }
 
+  if (options.react || options.jsx !== false) plugins.push('react')
+  if (options.react) {
+    fileOverrides.push({
+      files: [`**/*.${sourceExtension}`],
+      rules: createReactRules(options.nextjs === true),
+    })
+  }
+  if (options.nextjs) {
+    plugins.push('nextjs')
+    fileOverrides.push({ files: [`**/*.${sourceExtension}`], rules: structuredClone(nextjsRules) })
+  }
+  if (options.accessibility) {
+    plugins.push('jsx-a11y')
+    fileOverrides.push({ files: ['**/*.{jsx,tsx}'], rules: structuredClone(accessibilityRules) })
+  }
+  if (options.jsx !== false) {
+    fileOverrides.push({
+      files: ['**/*.{jsx,tsx}'],
+      rules: structuredClone(jsxRules),
+    })
+  }
+
   if (options.test !== false) {
     plugins.push('vitest')
     fileOverrides.push({
@@ -155,11 +204,10 @@ export function createConfig(
 
   fileOverrides.push({
     files: [
-      `**/scripts/**/*.${sourceExtension}`,
+      scriptFiles,
       `**/cli/**/*.${sourceExtension}`,
       `**/cli.${sourceExtension}`,
-      `**/*.config.${sourceExtension}`,
-      `**/*.config.*.${sourceExtension}`,
+      ...configFiles,
     ],
     rules: { 'no-console': 'off', 'node/no-top-level-await': 'off' },
   })
@@ -170,7 +218,10 @@ export function createConfig(
     categories: { correctness: 'off' },
     rules,
     env: { builtin: true, browser: true, node: useNode },
-    options: { reportUnusedDisableDirectives: 'error' },
+    options: {
+      reportUnusedDisableDirectives: 'error',
+      ...(useTypescript && options.typeAware ? { typeAware: true } : {}),
+    },
     ignorePatterns: [
       ...ignoredDirectories.map(directory => `**/${directory}/**`),
       '**/*.min.*',
@@ -213,5 +264,11 @@ export const typescript = createConfig()
 export const vue = createConfig({ vue: true })
 export const nuxt = createConfig({ nuxt: true })
 export const node = createConfig({ node: true })
+
+export const lib = createConfig({ type: 'lib' })
+export const typeAware = createConfig({ typeAware: true })
+export const react = createConfig({ react: true })
+export const nextjs = createConfig({ nextjs: true })
+export const accessibility = createConfig({ accessibility: true })
 
 export default createConfig

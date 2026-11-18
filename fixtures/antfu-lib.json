@@ -1,0 +1,90 @@
+[
+  {
+    "id": "library-function",
+    "file": "src/api.ts",
+    "source": "export function answer() { return 42 }\n",
+    "upstream": "ts/explicit-function-return-type",
+    "native": "typescript(explicit-function-return-type)",
+    "report": true
+  },
+  {
+    "id": "library-annotation",
+    "file": "src/api.mts",
+    "source": "export function answer(): number { return 42 }\n",
+    "upstream": "ts/explicit-function-return-type",
+    "native": "typescript(explicit-function-return-type)",
+    "report": false
+  },
+  {
+    "id": "library-callback",
+    "file": "src/map.cts",
+    "source": "export const answers = [42].map(n => n * 2)\n",
+    "upstream": "ts/explicit-function-return-type",
+    "native": "typescript(explicit-function-return-type)",
+    "report": false
+  },
+  {
+    "id": "library-iife",
+    "file": "src/value.ts",
+    "source": "export const answer = (() => 42)()\n",
+    "upstream": "ts/explicit-function-return-type",
+    "native": "typescript(explicit-function-return-type)",
+    "report": false
+  },
+  {
+    "id": "library-higher-order",
+    "file": "src/higher.ts",
+    "source": "export function makeAnswer() { return (): number => 42 }\n",
+    "upstream": "ts/explicit-function-return-type",
+    "native": "typescript(explicit-function-return-type)",
+    "report": false
+  },
+  {
+    "id": "library-cli",
+    "file": "cli.ts",
+    "source": "export function answer() { return 42 }\n",
+    "upstream": "ts/explicit-function-return-type",
+    "native": "typescript(explicit-function-return-type)",
+    "report": true
+  },
+  {
+    "id": "library-test",
+    "file": "foo.spec.ts",
+    "source": "export function answer() { return 42 }\n",
+    "upstream": "ts/explicit-function-return-type",
+    "native": "typescript(explicit-function-return-type)",
+    "report": false
+  },
+  {
+    "id": "library-script",
+    "file": "scripts/nested/check.ts",
+    "source": "export function answer() { return 42 }\n",
+    "upstream": "ts/explicit-function-return-type",
+    "native": "typescript(explicit-function-return-type)",
+    "report": false
+  },
+  {
+    "id": "library-config",
+    "file": "lint.config.prod.ts",
+    "source": "export function answer() { return 42 }\n",
+    "upstream": "ts/explicit-function-return-type",
+    "native": "typescript(explicit-function-return-type)",
+    "report": false
+  },
+  {
+    "id": "library-vue",
+    "file": "Component.vue",
+    "source": "<script setup lang=\"ts\">\nfunction answer() { return 42 }\n</script>\n",
+    "upstream": "ts/explicit-function-return-type",
+    "native": "typescript(explicit-function-return-type)",
+    "report": false
+  },
+  {
+    "id": "library-js",
+    "file": "source.js",
+    "source": "export function answer() { return 42 }\n",
+    "upstream": "ts/explicit-function-return-type",
+    "native": "typescript(explicit-function-return-type)",
+    "report": false
+  }
+]

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, mkdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import test from 'node:test'
@@ -294,4 +294,46 @@ test('nested preset rule options are independent across factory calls', () => {
     second.overrides[0].rules['typescript/ban-ts-comment'][1]['ts-expect-error'],
     'allow-with-description',
   )
+})
+
+test('native JSX style checks fix literal props and wrap JSX element props', t => {
+  const source = 'export const element = <div label={`hello`} icon=<span /> />\n'
+  const consumer = fixture(t, 'createConfig()', { 'source.tsx': source })
+  const before = lint(consumer)
+  assert.ok(hasRule(before.report, 'react(jsx-curly-brace-presence)'))
+  execute(consumer, ['--format', 'json', '--fix', ...consumer.targets])
+  assert.equal(
+    readFileSync(join(consumer.directory, 'source.tsx'), 'utf8'),
+    'export const element = <div label="hello" icon={<span />} />\n',
+  )
+  const after = lint(consumer)
+  assert.equal(after.status, 0, JSON.stringify(after.report.diagnostics))
+})
+
+test('the JSX style subset can be disabled without enabling React framework rules', t => {
+  const source = 'export const element = <div label={`hello`} />\n'
+  const files = { 'source.jsx': source, 'source.js': 'export const value = 1\n' }
+  const consumer = fixture(t, 'createConfig({ jsx: false })', files)
+  const result = execute(consumer, ['--format', 'json', '--fix', ...consumer.targets])
+  assert.equal(result.status, 0, JSON.stringify(result.report.diagnostics))
+  assert.equal(readFileSync(join(consumer.directory, 'source.jsx'), 'utf8'), source)
+  assert.equal(readFileSync(join(consumer.directory, 'source.js'), 'utf8'), files['source.js'])
+
+  const enabled = lint(fixture(t, 'createConfig()', files))
+  assert.deepEqual(
+    enabled.report.diagnostics.map(d => [d.filename, d.code]),
+    [['source.jsx', 'react(jsx-curly-brace-presence)']],
+  )
+})
+
+test('safe fixes preserve ordinary string escapes that Antfu does not lint', t => {
+  const source = "export const color = '\\grey'\n"
+  const consumer = fixture(t, 'createConfig()', { 'source.js': source })
+  const result = execute(consumer, ['--format', 'json', '--fix', ...consumer.targets])
+  assert.equal(result.status, 0, JSON.stringify(result.report.diagnostics))
+  assert.equal(readFileSync(join(consumer.directory, 'source.js'), 'utf8'), source)
+  const invalidRegexp = lint(
+    fixture(t, 'createConfig()', { 'pattern.js': "export const pattern = new RegExp('[')\n" }),
+  )
+  assert.ok(hasRule(invalidRegexp.report, 'eslint(no-invalid-regexp)'))
 })

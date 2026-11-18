@@ -1,0 +1,118 @@
+[
+  {
+    "id": "hook-outside-component",
+    "profile": "react",
+    "file": "read.js",
+    "source": "import { useState } from 'react'\nexport function read() { return useState(0) }\n",
+    "upstream": "react/rules-of-hooks",
+    "native": "react-hooks(rules-of-hooks)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "key-missing",
+    "profile": "react",
+    "file": "Items.tsx",
+    "source": "export function Items({ items }) { return items.map(item => <li>{item.id}</li>) }\n",
+    "upstream": "react/no-missing-key",
+    "native": "react(jsx-key)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "key-present",
+    "profile": "react",
+    "file": "Items.tsx",
+    "source": "export function Items({ items }) { return items.map(item => <li key={item.id}>{item.name}</li>) }\n",
+    "upstream": "react/no-missing-key",
+    "native": "react(jsx-key)",
+    "report": false
+  },
+  {
+    "id": "key-index",
+    "profile": "react",
+    "file": "Items.jsx",
+    "source": "export function Items({ items }) { return items.map((item, index) => <li key={index}>{item.name}</li>) }\n",
+    "upstream": "react/no-array-index-key",
+    "native": "react(no-array-index-key)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "duplicate-key-not-recommended",
+    "profile": "react",
+    "file": "Items.jsx",
+    "source": "export function Items() { return [<li key=\"x\" />, <li key=\"x\" />] }\n",
+    "upstream": "react/no-duplicate-key",
+    "native": "react(jsx-key)",
+    "report": false
+  },
+  {
+    "id": "refresh-mixed-exports",
+    "profile": "react",
+    "file": "View.jsx",
+    "source": "export function helper() { return 42 }\nexport function View() { return <div /> }\n",
+    "upstream": "react-refresh/only-export-components",
+    "native": "react(only-export-components)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "set-state-in-render",
+    "profile": "react",
+    "file": "View.jsx",
+    "source": "import { useState } from 'react'\nexport function View() { const [count, setCount] = useState(0); setCount(1); return <div>{count}</div> }\n",
+    "upstream": "react/set-state-in-render",
+    "native": "react(set-state-in-render)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "next-img",
+    "profile": "nextjs",
+    "file": "page.tsx",
+    "source": "export default function Page() { return <img src=\"/banner.png\" alt=\"Banner\" /> }\n",
+    "upstream": "next/no-img-element",
+    "native": "next(no-img-element)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "next-picture",
+    "profile": "nextjs",
+    "file": "page.tsx",
+    "source": "export default function Page() { return <picture><img src=\"/banner.png\" alt=\"Banner\" /></picture> }\n",
+    "upstream": "next/no-img-element",
+    "native": "next(no-img-element)",
+    "report": false
+  },
+  {
+    "id": "next-sync-script",
+    "profile": "nextjs",
+    "file": "page.jsx",
+    "source": "export default function Page() { return <script src=\"/tracking.js\" /> }\n",
+    "upstream": "next/no-sync-scripts",
+    "native": "next(no-sync-scripts)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "next-deferred-script",
+    "profile": "nextjs",
+    "file": "page.jsx",
+    "source": "export default function Page() { return <script defer src=\"/tracking.js\" /> }\n",
+    "upstream": "next/no-sync-scripts",
+    "native": "next(no-sync-scripts)",
+    "report": false
+  },
+  {
+    "id": "next-module-variable",
+    "profile": "nextjs",
+    "file": "read.js",
+    "source": "export function read() { const module = 42; return module }\n",
+    "upstream": "next/no-assign-module-variable",
+    "native": "next(no-assign-module-variable)",
+    "report": true,
+    "severity": 2
+  }
+]

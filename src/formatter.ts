@@ -6,6 +6,7 @@ export type { OxfmtConfig } from 'oxfmt'
 export function createFormatterConfig(options: OxfmtConfig = {}): OxfmtConfig {
   return {
     singleQuote: true,
+    quoteProps: 'consistent',
     semi: false,
     trailingComma: 'all',
     arrowParens: 'avoid',
@@ -13,6 +14,7 @@ export function createFormatterConfig(options: OxfmtConfig = {}): OxfmtConfig {
     useTabs: false,
     endOfLine: 'lf',
     printWidth: 100,
+    experimentalOperatorPosition: 'start',
     proseWrap: 'preserve',
     vueIndentScriptAndStyle: false,
     sortImports: {
@@ -33,6 +35,14 @@ export function createFormatterConfig(options: OxfmtConfig = {}): OxfmtConfig {
       sortSideEffects: false,
     },
     sortPackageJson: true,
+    // Antfu's default JS/TS lint does not format embedded HTML/CSS/GraphQL.
+    // Vue remains outside this scope so its script and style blocks are formatted.
+    overrides: [
+      {
+        files: ['**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}'],
+        options: { embeddedLanguageFormatting: options.embeddedLanguageFormatting ?? 'off' },
+      },
+    ],
     ...options,
   }
 }
