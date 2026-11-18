@@ -43,6 +43,7 @@
     "prepack": "npm run build"
   },
   "devDependencies": {
+    "@types/node": "22.20.5",
     "oxfmt": "0.78.0",
     "oxlint": "1.93.0",
     "oxlint-tsgolint": "7.0.2007",

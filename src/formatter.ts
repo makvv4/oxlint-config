@@ -1,10 +1,12 @@
 import type { OxfmtConfig } from 'oxfmt'
+import { formatterIgnorePatterns } from './ignores.ts'
 
 export type { OxfmtConfig } from 'oxfmt'
 
 /** User options replace preset values, including false. */
 export function createFormatterConfig(options: OxfmtConfig = {}): OxfmtConfig {
   return {
+    ignorePatterns: [...formatterIgnorePatterns],
     singleQuote: true,
     quoteProps: 'consistent',
     semi: false,

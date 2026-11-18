@@ -91,6 +91,18 @@ const fixer = new ESLint({
   fix: true,
   overrideConfig: await antfu(defaults),
 })
+const importFixes = readCases('unused-import-fixes')
+for (const { file, source, expected } of importFixes) {
+  const [result] = await fixer.lintText(source, { filePath: file })
+  assert.equal(result.fatalErrorCount, 0, JSON.stringify(result.messages))
+  assert.equal(result.output ?? source, expected, file)
+}
+console.log(`Antfu 10.0.0: ${importFixes.length} unused-import fixes verified byte for byte`)
+const { included, excluded } = readCases('file-selection')
+for (const file of included) assert.equal(await fixer.isPathIgnored(file), false, file)
+for (const file of excluded) assert.equal(await fixer.isPathIgnored(file), true, file)
+console.log(`Antfu 10.0.0: ${included.length + excluded.length} path selections verified`)
+
 const files = ['javascript.js', 'typescript.ts', 'jsx.jsx', 'tsx.tsx', 'vue.vue', 'vue-ts.vue']
 for (const file of files) {
   const input = readFileSync(resolve(fixtureRoot, 'input', file), 'utf8')

@@ -1,0 +1,46 @@
+const ignoredDirectories = [
+  'node_modules',
+  'dist',
+  'output',
+  'coverage',
+  'temp',
+  '.temp',
+  'tmp',
+  '.tmp',
+  '.history',
+  '.vitepress/cache',
+  '.nuxt',
+  '.next',
+  '.svelte-kit',
+  '.vercel',
+  '.changeset',
+  '.idea',
+  '.cache',
+  '.output',
+  '.vite-inspect',
+  '.yarn',
+  '__snapshots__',
+  '.context',
+  '.claude',
+  '.agents',
+  '.*/skills',
+]
+
+export const scriptIgnorePatterns = [
+  ...ignoredDirectories.map(directory => `**/${directory}/**`),
+  '**/*.min.*',
+  '**/vite.config.*.timestamp-*',
+  '**/auto-import.d.ts',
+  '**/auto-imports.d.ts',
+  '**/components.d.ts',
+]
+
+export const formatterIgnorePatterns = [
+  ...scriptIgnorePatterns,
+  '**/package-lock.json',
+  '**/yarn.lock',
+  '**/pnpm-lock.yaml',
+  '**/bun.lockb',
+  '**/CHANGELOG*.md',
+  '**/LICENSE*',
+]

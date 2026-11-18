@@ -1,0 +1,12 @@
+[
+  {
+    "file": "source.js",
+    "source": "import unusedDefault from './remove.js'\nimport { kept, unused } from './values.js'\nimport './setup.js'\n\nconst unusedLocal = kept()\n",
+    "expected": "import { kept } from './values.js'\nimport './setup.js'\n\nconst unusedLocal = kept()\n"
+  },
+  {
+    "file": "source.ts",
+    "source": "import type { Kept, Unused } from './types'\n\nexport type Item = Kept\n",
+    "expected": "import type { Kept } from './types'\n\nexport type Item = Kept\n"
+  }
+]

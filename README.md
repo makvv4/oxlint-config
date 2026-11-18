@@ -29,6 +29,8 @@ export default createConfig()
 
 The defaults approximate Antfu 10 with explicitly selected native JavaScript, TypeScript, import, Unicorn, Node, JSDoc, and Vitest rules. They disallow `var`, `debugger`, and ordinary `console.log` calls; allow `console.warn` and `console.error`; prefer `const`, interfaces, and separate type imports; and check unused variables. Unused parameters and variables prefixed with `_` are allowed. Both `T[]` and `Array<T>` are accepted, and `any` is not banned.
 
+`oxlint --fix` removes unused value imports and type imports. It drops an entire import when the last binding is unused, but leaves an explicit side-effect import (`import './setup'`) and an unused local variable's initializer in place. If a module must run for its side effects, import it explicitly. Bindings whose names start with `_` retain the preset's unused-variable exemption.
+
 Browser and Node globals are available by default. `no-undef` checks JavaScript; TypeScript files rely on your typecheck. TypeScript rules are scoped to TS/TSX and enabled Vue files. Vitest rules apply only to test/spec/bench/benchmark files and `__tests__`; set `test: false` for other test frameworks, including `node:test`.
 
 All presets ignore dependencies, build output, coverage, caches, generated declarations, and other Antfu-like exclusions, including nested `node_modules`, `dist`, `.nuxt`, and `.output` directories. This also works without a `.gitignore`. Scripts, CLI files, and configuration files allow console output and top-level await.
@@ -95,6 +97,10 @@ Run `npx oxlint .` from the project with its `tsconfig.json`. The config enables
 
 Library mode allows inferred returns for callbacks, typed expressions, higher-order functions and IIFEs. It exempts Vue scripts, `scripts/`, config files and, with the test preset enabled, test files. CLI files have no blanket exemption. For a Next.js app use `createConfig({ react: true, nextjs: true, accessibility: true })`; the flags are independent. Enabling React and Next together allows Next route exports such as `metadata` under Fast Refresh. None of these framework checks require another plugin package.
 
+With `react: true`, Fast Refresh detects installed packages from the current working directory. Vite allows exported constants; Remix and React Router framework packages allow route exports such as `loader`, `action`, and `headers`. Antfu checks for `@remix-run/{node,react,serve,dev}` and `@react-router/{node,react,serve,dev}`; `react-router` alone does not enable route exceptions. An installed `next` allows Next route exports without enabling the Next lint preset.
+
+In a monorepo you can set `react: { rootDir: './apps/web' }` to detect packages from that directory. To select integrations without detection, use `react: { fastRefresh: ['vite', 'react-router'] }`. The list replaces detection; `[]` disables detected exceptions. An explicit `nextjs: true` still enables Next exceptions when React is active.
+
 ### Overriding configuration
 
 The second argument is a regular Oxlint configuration object:
@@ -122,6 +128,8 @@ Style: two-space indentation, single quotes, no semicolons, trailing commas, LF 
 
 Object property quotes are consistent, and wrapped binary operators start their lines. Embedded HTML/CSS/GraphQL in JS/TS strings is preserved by default; Vue script and style blocks are still formatted. Set `embeddedLanguageFormatting: 'auto'` to format embedded source strings too. A supplied `overrides` array replaces the default file scope, including `overrides: []`. These file scopes require the Oxfmt CLI/config resolver; the low-level `format()` API does not resolve them.
 
+When Oxfmt scans a directory, it skips Antfu's generated folders, minified files, generated declarations, lockfiles, `CHANGELOG*.md`, and `LICENSE*` even without a `.gitignore`. For example, `packages/app/dist/page.ts` is skipped while `packages/app/src/page.ts` is formatted. A supplied `ignorePatterns` replaces this list; `ignorePatterns: []` removes the preset's exclusions. Oxfmt's own file-selection rules still apply.
+
 Astro and Svelte formatting are opt-in through `astro: true` / `svelte: true`, with `@astrojs/compiler-rs` / `svelte` installed in the consuming project. They do not require ESLint. Core Oxlint checks already support their script blocks; dedicated framework template presets are not provided.
 
 To configure Tailwind CSS 4 while keeping the preset's import groups:
@@ -134,7 +142,6 @@ export default createFormatterConfig({
     stylesheet: './app/assets/css/tailwind.css',
     functions: ['cn'],
   },
-  ignorePatterns: ['.nuxt/**', '.output/**'],
 })
 ```
 

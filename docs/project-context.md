@@ -37,7 +37,7 @@ not reconstructed, so JavaScript auto-imports need caller globals or a rule over
 
 Defaults now match many more Antfu choices: smart equality, restricted console calls,
 interfaces, separate type imports, property-style method signatures, strict TS syntax checks,
-Node protocol imports, selected modernization checks, and scoped test rules. Both array
+Node protocol imports, selected modernization checks, and scoped test rules. Normal `--fix` removes unused import bindings but preserves bare imports and local declarations. Both array
 notations and `any` are allowed. JSDoc and selected Vue checks preserve warning severity.
 Generated/cache/build/dependency directories are excluded, including nested node_modules,
 dist, coverage, .nuxt, and .output. Scripts, CLI files, configs, declarations, and test files
@@ -66,7 +66,7 @@ operators start their lines. Embedded HTML/CSS in JS/TS strings is preserved by 
 Vue script/style formatting stays active. An explicit caller `embeddedLanguageFormatting` wins,
 and caller formatter `overrides` replaces the default array, including `[]`. Import grouping and package.json sorting
 are now enabled. Side-effect import order and package script order are preserved. Caller options
-replace defaults, including `false`. Tailwind class sorting remains opt-in.
+replace defaults, including `false`. Tailwind class sorting remains opt-in. Formatter defaults mirror Antfu's file exclusions, including lockfiles, changelogs and licenses. Explicit `ignorePatterns` replaces all preset exclusions.
 
 ## Antfu comparison and validation
 
@@ -91,7 +91,7 @@ remaining gaps, test methodology, and reproduction commands. Reference: Antfu 10
   input isolation, formatter sorting, and Vue's template limitation.
 
 Antfu's custom style, Vue template lint, most regexp checks, document lint, several Node/JSDoc
-rules, export/tsconfig sorting, framework auto-detection, and FlatConfigComposer are not reproduced.
+rules, export/tsconfig sorting, automatic activation of framework presets, and FlatConfigComposer are not reproduced. When React is enabled, Fast Refresh detects Vite, Remix, React Router framework packages and Next; callers can select integrations explicitly.
 Library mode adds return-type checks. Opt-in type-aware lint uses the optional `oxlint-tsgolint` peer; React, Next and JSX accessibility use built-in Oxlint plugins. Keep project typechecking.
 The original SURGAZ application did not enable Antfu type-aware lint; its Nuxt auto-import
 globals and Tailwind lint rules came from separate integrations.

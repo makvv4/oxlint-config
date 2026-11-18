@@ -1,5 +1,6 @@
-import { createFormatterConfig } from './src/formatter.ts'
+import formatter from './src/formatter.ts'
 
-export default createFormatterConfig({
-  ignorePatterns: ['dist/**', 'node_modules/**', 'package-lock.json', '*.log', 'fixtures/antfu/**'],
-})
+export default {
+  ...formatter,
+  ignorePatterns: [...(formatter.ignorePatterns ?? []), '*.log', 'fixtures/antfu/**'],
+}

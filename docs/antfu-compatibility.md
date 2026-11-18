@@ -56,6 +56,10 @@ Three complementary checks are included here:
    and `tsconfig.json`. With optional Astro/Svelte compilers and settings, **3/16 processed files**
    match. There are no remaining native diagnostics in either run.
 
+The reference runner also checks the exact `--fix` output for unused imports in JS and TS.
+A separate file-selection fixture compares Antfu's ignored paths with the files actually rewritten
+by Oxfmt. The native CLI tests use a standalone consumer directory without a `.gitignore`.
+
 The initial comparison matched only 2/18. Its `prefer-template` residual was an invocation problem,
 not a missing fixer: a second ordinary safe-fix pass resolves overlapping edits. Its unsupported
 format claim was also too broad: Astro/Svelte are opt-in formats requiring compiler packages.
@@ -100,13 +104,13 @@ not automatic acceptance of new output. Normal CI uses vendored fixtures and nee
 
 ## Optional presets
 
-| Option                | Native coverage compared with Antfu 10                                                                                                                 | Known boundary                                                                                                                                                                                         |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `type: 'lib'`         | Explicit TypeScript function return types, including Antfu's callback, IIFE and path exceptions.                                                       | No e18e `prefer-static-regex` or editor-only module replacement checks.                                                                                                                                |
-| `typeAware: true`     | All 19 enabled rules in Antfu's typed TypeScript group, including its strict-boolean and return-await options. Tested with `oxlint-tsgolint` 7.0.2007. | Uses Oxlint project discovery, not Antfu's parser API; excludes Vue SFCs and does not run `tsc`.                                                                                                       |
-| `react: true`         | Selected rules for hooks, JSX, DOM, class lifecycles, compiler checks and Fast Refresh.                                                                | No equivalent for the full upstream set, including web API cleanup and server-component checks. Native lifecycle and children diagnostics may differ in severity. No Vite/Remix/Router auto-detection. |
-| `nextjs: true`        | 21 of 22 rules from the pinned Next.js recommended + Core Web Vitals sets at their upstream severity.                                                  | Oxlint lacks `no-location-assign-relative-destination`.                                                                                                                                                |
-| `accessibility: true` | All 31 active JSX accessibility rule names from Antfu's `jsx: { a11y: true }`, including its role and handler options.                                 | Applies to JSX/TSX only. Matching names do not guarantee identical analyzers or autofixes.                                                                                                             |
+| Option                | Native coverage compared with Antfu 10                                                                                                                 | Known boundary                                                                                                                                                    |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type: 'lib'`         | Explicit TypeScript function return types, including Antfu's callback, IIFE and path exceptions.                                                       | Explicit e18e options are outside this preset. Antfu 10's factory does not pass its top-level `type` to e18e either.                                              |
+| `typeAware: true`     | All 19 enabled rules in Antfu's typed TypeScript group, including its strict-boolean and return-await options. Tested with `oxlint-tsgolint` 7.0.2007. | Uses Oxlint project discovery, not Antfu's parser API; excludes Vue SFCs and does not run `tsc`.                                                                  |
+| `react: true`         | Selected hooks, JSX, DOM, lifecycle and compiler rules. Fast Refresh detects Vite, Remix, React Router framework packages and Next.                    | No equivalent for the full upstream set, including web API cleanup and server-component checks. Native lifecycle and children diagnostics may differ in severity. |
+| `nextjs: true`        | 21 of 22 rules from the pinned Next.js recommended + Core Web Vitals sets at their upstream severity.                                                  | Oxlint lacks `no-location-assign-relative-destination`.                                                                                                           |
+| `accessibility: true` | All 31 active JSX accessibility rule names from Antfu's `jsx: { a11y: true }`, including its role and handler options.                                 | Applies to JSX/TSX only. Matching names do not guarantee identical analyzers or autofixes.                                                                        |
 
 The optional oracle installs plugins only in its isolated comparison directory. `--legacy-peer-deps` is needed there because the reference JSX accessibility package does not declare ESLint 10 in its peer range. The native presets never import those plugins.
 
@@ -129,8 +133,8 @@ The optional oracle installs plugins only in its isolated comparison directory. 
 - **Rule implementations:** matching names/options do not guarantee identical diagnostics or fixes.
   Overlapping safe edits can need multiple CLI invocations. Core `no-useless-escape` is intentionally
   absent: it changes ordinary strings Antfu leaves alone and is not a regex-only substitute.
-  Native unused-variable checking consolidates Antfu's core/unused-import plugin checks; unused
-  import fixing can differ. `no-focused-tests` covers native Vitest patterns, not every framework
+  Unused import fixes preserve bare imports and ordinary unused locals. An unused import named
+  `_alias` can remain: Oxlint applies the variable exemption to imports too, whereas Antfu uses a separate import rule. `no-focused-tests` covers native Vitest patterns, not every framework
   recognized by `eslint-plugin-no-only-tests`. e18e approximations are not exhaustive.
 - **Unavailable checks:** most regexp and e18e rules, some Node/JSDoc rules, ESLint-comment rules,
   custom Antfu import restrictions, and generic ESTree selector restrictions have no complete
@@ -139,9 +143,9 @@ The optional oracle installs plugins only in its isolated comparison directory. 
 - **Other languages/frameworks:** no JSON/JSONC/YAML/TOML/Markdown semantic lint, embedded Markdown
   code lint, pnpm catalog rules, or dedicated Svelte/Astro/Solid/Angular lint presets.
   Formatting a file is not equivalent to those checks.
-- **API and types:** explicit booleans and a plain object replace auto-detection and
-  FlatConfigComposer. `typescript: false` disables TS-specific rules rather than ignoring TS files.
-  Editor-specific severity changes and framework auto-detection are not reproduced. Keep `tsc`, `vue-tsc`, or `nuxt typecheck`.
+- **API and types:** framework presets are enabled explicitly and the factory returns a plain object.
+  Within the React preset, only the Fast Refresh exceptions are detected from installed packages. `typescript: false` disables TS-specific rules rather than ignoring TS files.
+  Editor-specific severity changes and automatic activation of presets are not reproduced. Keep `tsc`, `vue-tsc`, or `nuxt typecheck`.
 
 For each remaining area, full parity requires either upstream native capabilities, a separately
 scoped feature, or bringing ESLint plugins back. This package retains zero runtime dependencies

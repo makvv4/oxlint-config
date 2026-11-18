@@ -165,6 +165,7 @@ export const javascriptRules: Rules = {
     {
       args: 'after-used',
       argsIgnorePattern: '^_',
+      fix: { imports: 'safe-fix', variables: 'off' },
       ignoreRestSiblings: true,
       vars: 'all',
       varsIgnorePattern: '^_',

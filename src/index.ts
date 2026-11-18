@@ -1,6 +1,8 @@
 import type { OxlintConfig } from 'oxlint'
+import type { ReactPresetOptions } from './frameworks.js'
 import { accessibilityRules } from './accessibility.js'
 import { createReactRules, nextjsRules } from './frameworks.js'
+import { scriptIgnorePatterns } from './ignores.js'
 import {
   importsRules,
   javascriptRules,
@@ -15,11 +17,12 @@ import {
 import { typeAwareRules } from './type-aware.js'
 
 export type { OxlintConfig } from 'oxlint'
+export type { ReactPresetOptions } from './frameworks.js'
 
 export interface PresetOptions {
   type?: 'app' | 'lib'
   typeAware?: boolean
-  react?: boolean
+  react?: boolean | ReactPresetOptions
   nextjs?: boolean
   accessibility?: boolean
   /** TypeScript is enabled by default. */
@@ -52,34 +55,6 @@ const configFiles = [`**/*.config.${sourceExtension}`, `**/*.config.*.${sourceEx
 const testFiles = [
   `**/__tests__/**/*.${sourceExtension}`,
   `**/*.{test,spec,bench,benchmark}.${sourceExtension}`,
-]
-
-const ignoredDirectories = [
-  'node_modules',
-  'dist',
-  'output',
-  'coverage',
-  'temp',
-  '.temp',
-  'tmp',
-  '.tmp',
-  '.history',
-  '.vitepress/cache',
-  '.nuxt',
-  '.next',
-  '.svelte-kit',
-  '.vercel',
-  '.changeset',
-  '.idea',
-  '.cache',
-  '.output',
-  '.vite-inspect',
-  '.yarn',
-  '__snapshots__',
-  '.context',
-  '.claude',
-  '.agents',
-  '.*/skills',
 ]
 
 /**
@@ -172,7 +147,7 @@ export function createConfig(
   if (options.react) {
     fileOverrides.push({
       files: [`**/*.${sourceExtension}`],
-      rules: createReactRules(options.nextjs === true),
+      rules: createReactRules(options.react === true ? {} : options.react, options.nextjs === true),
     })
   }
   if (options.nextjs) {
@@ -222,14 +197,7 @@ export function createConfig(
       reportUnusedDisableDirectives: 'error',
       ...(useTypescript && options.typeAware ? { typeAware: true } : {}),
     },
-    ignorePatterns: [
-      ...ignoredDirectories.map(directory => `**/${directory}/**`),
-      '**/*.min.*',
-      '**/vite.config.*.timestamp-*',
-      '**/auto-import.d.ts',
-      '**/auto-imports.d.ts',
-      '**/components.d.ts',
-    ],
+    ignorePatterns: [...scriptIgnorePatterns],
     overrides: fileOverrides,
   }
 

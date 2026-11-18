@@ -1,0 +1,26 @@
+{
+  "included": [
+    "src/admin.ts",
+    "src/components.extra.d.ts",
+    "docs/notes.md",
+    "packages/app/settings.json",
+    "packages/app/skills/format.ts"
+  ],
+  "excluded": [
+    ".nuxt/output.ts",
+    "packages/app/dist/output.ts",
+    "packages/app/node_modules/demo/index.ts",
+    "packages/app/.vitepress/cache/page.ts",
+    "packages/app/.editor/skills/demo.ts",
+    "src/__snapshots__/data.ts",
+    "src/client.min.ts",
+    "packages/app/vite.config.ts.timestamp-123.mjs",
+    "auto-import.d.ts",
+    "packages/app/auto-imports.d.ts",
+    "packages/app/components.d.ts",
+    "CHANGELOG.md",
+    "packages/app/CHANGELOG-v1.md",
+    "docs/LICENSE-notes.md",
+    "packages/app/package-lock.json"
+  ]
+}
