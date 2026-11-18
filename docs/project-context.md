@@ -52,7 +52,7 @@ Merge behavior remains part of the API contract:
 - Caller global rules also replace conflicting preset file-scope values, using native rule names.
 - Caller file `overrides` append after preset overrides and therefore run last.
 - Explicit `plugins`, `ignorePatterns`, `settings`, `jsPlugins`, and `extends` replace preset values,
-  including empty arrays. `options` also uses normal replacement semantics.
+  including empty arrays. Replacing `jsPlugins` omits the bundled rules unless the caller retains the plugin under its preset name. `options` also uses normal replacement semantics.
 - `ignorePatterns: []` removes the preset exclusions.
 - Inputs are not mutated; each call creates fresh internal rule options. Nested caller-owned
   objects are not deep-cloned.
@@ -77,7 +77,7 @@ Read [the full compatibility report](antfu-compatibility.md) for provenance, cov
 remaining gaps, test methodology, and reproduction commands. Reference: Antfu 10.0.0 at
 `bb2013690a517ea9b369d36d79a5708356326a64`; Oxlint 1.93.0; Oxfmt 0.78.0.
 
-- 95 focused behavior expectations agree between real Antfu and the native CLI: 36 defaults and 59 for the optional modes.
+- 153 targeted rule expectations agree between real Antfu and Oxlint: 36 original defaults, 59 optional-mode cases, and 58 bundled-plugin cases.
 - The isolated Antfu/ESLint oracle reproduces 6/6 original core source fixture snapshots.
 - The refined native comparison uses all 18 upstream input files: ten script lint targets,
   14 default formatter targets, and three exact processed matches. Optional Astro/Svelte
@@ -95,7 +95,7 @@ remaining gaps, test methodology, and reproduction commands. Reference: Antfu 10
 
 Antfu's custom style, Vue template lint, most regexp checks, document lint, several Node/JSDoc
 rules, export/tsconfig sorting, automatic activation of framework presets, and FlatConfigComposer are not reproduced. When React is enabled, Fast Refresh detects Vite, Remix, React Router framework packages and Next; callers can select integrations explicitly.
-Library mode adds return-type checks. Opt-in type-aware lint uses the optional `oxlint-tsgolint` peer; React, Next and JSX accessibility use built-in Oxlint plugins. Keep project typechecking.
+Library mode adds return-type checks. Opt-in type-aware lint uses the optional `oxlint-tsgolint` peer. Imports and Next also register the bundled `makvv4` JS plugin for three checks without built-in equivalents; it loads no ESLint code. Keep project typechecking.
 The original SURGAZ application did not enable Antfu type-aware lint; its Nuxt auto-import
 globals and Tailwind lint rules came from separate integrations.
 

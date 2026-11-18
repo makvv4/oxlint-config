@@ -26,6 +26,8 @@ const { default: antfu } = await import(
 )
 const { ESLint } = await import(pathToFileURL(requireOracle.resolve('eslint')))
 assert.equal(requireOracle('@antfu/eslint-config/package.json').version, '10.0.0')
+assert.equal(requireOracle('eslint-plugin-antfu/package.json').version, '3.3.1')
+assert.equal(requireOracle('@next/eslint-plugin-next/package.json').version, '16.4.2')
 const defaults = { typescript: true, vue: true, isInEditor: false, gitignore: false }
 const frameworks = readCases('frameworks')
 async function checkCases(name, cases, options = {}, { typed = false } = {}) {
@@ -74,6 +76,8 @@ async function checkCases(name, cases, options = {}, { typed = false } = {}) {
   }
 }
 await checkCases('default', readCases('behavior'))
+await checkCases('import paths', readCases('import-paths'))
+await checkCases('Next.js navigation', readCases('next-location'), { nextjs: true })
 await checkCases('library', readCases('lib'), { type: 'lib' })
 await checkCases('type-aware', readCases('type-aware'), {}, { typed: true })
 await checkCases('accessibility', readCases('accessibility'), { jsx: { a11y: true } })

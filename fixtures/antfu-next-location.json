@@ -1,0 +1,313 @@
+[
+  {
+    "id": "assign-internal",
+    "file": "route.js",
+    "source": "location.assign('/inbox')\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "href-parent-relative",
+    "file": "route.js",
+    "source": "window.location.href = '../team'\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "document-query",
+    "file": "route.js",
+    "source": "document.location.assign('?sort=asc')\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "self-fragment",
+    "file": "route.js",
+    "source": "self.location.href = '#section'\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "computed-properties",
+    "file": "route.js",
+    "source": "globalThis['location']['assign']('profile')\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "computed-href",
+    "file": "route.js",
+    "source": "location['href'] = './profile'\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "external-origin",
+    "file": "route.js",
+    "source": "location.href = 'https://app.example/home'\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "external-network-path",
+    "file": "route.js",
+    "source": "window.location.assign('//cdn.example/icon')\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "external-custom-scheme",
+    "file": "route.js",
+    "source": "location.assign('WEB+demo:join')\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "external-template",
+    "file": "route.js",
+    "source": "export function go(id) { location.assign(`https://cdn.example/${id}`) }\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "relative-template",
+    "file": "route.js",
+    "source": "export function go(id) { location.href = `/users/${id}` }\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "scheme-from-const",
+    "file": "route.ts",
+    "source": "const protocol = 'https'\nlocation.assign(protocol + '://example.org')\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "external-template-with-constant",
+    "file": "route.js",
+    "source": "const base = '//app.example/'\nlocation.assign(`${base}home`)\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "constant-alias",
+    "file": "route.ts",
+    "source": "const start = '/docs/'\nconst destination = start + 'api'\nlocation.assign(destination)\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "partial-concat",
+    "file": "route.js",
+    "source": "export function go(id) { const destination = 'index?tab=' + id; location.href = destination }\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "latest-write-relative",
+    "file": "route.js",
+    "source": "let destination = '//example.org'\ndestination = '/start'\nlocation.href = destination\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "latest-write-external",
+    "file": "route.js",
+    "source": "let destination = '/start'\ndestination = '//example.org'\nlocation.href = destination\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "future-write",
+    "file": "route.js",
+    "source": "let destination = '//example.org'\nlocation.href = destination\ndestination = '/start'\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "dynamic-parameter",
+    "file": "route.js",
+    "source": "export function go(url) { location.assign(url) }\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "dynamic-function",
+    "file": "route.js",
+    "source": "export function go(makeUrl) { location.href = makeUrl() }\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "shadowed-location",
+    "file": "route.js",
+    "source": "export function go(location) { location.assign('/start') }\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "shadowed-global",
+    "file": "route.js",
+    "source": "export function go(window) { window.location.href = '/start' }\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "imported-location",
+    "file": "route.js",
+    "source": "import { location } from './mock.js'\nlocation.href = '/local'\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "unrelated-receiver",
+    "file": "route.js",
+    "source": "export function go(router) { router.location.assign('/start') }\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "unrelated-method",
+    "file": "route.js",
+    "source": "location.replace('/only-assign-is-checked')\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "spread-argument",
+    "file": "route.js",
+    "source": "export function go(args) { location.assign(...args) }\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "missing-argument",
+    "file": "route.js",
+    "source": "location.assign()\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "conditional-constant",
+    "file": "route.js",
+    "source": "location.assign(true ? '/dashboard' : 'https://example.org')\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "route-map-as-const",
+    "file": "route.ts",
+    "source": "const routes = { profile: '/settings/me' } as const\nlocation.assign(routes.profile)\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "indexed-route-array",
+    "file": "route.ts",
+    "source": "const paths = ['//example.com', '/nearby']\nlocation.href = paths[1]\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "mutated-route-map",
+    "file": "route.ts",
+    "source": "const routes = { profile: '/home' }\nroutes.profile = '//example.com'\nlocation.href = routes.profile\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "dynamic-map-property",
+    "file": "route.ts",
+    "source": "const routes = { profile: '/home', other: getUrl() }\nlocation.href = routes.profile\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "static-conditional-identifier",
+    "file": "route.ts",
+    "source": "const remote = false\nlocation.href = remote ? '//external.example' : '/inside'\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  },
+  {
+    "id": "reassigned-conditional-identifier",
+    "file": "route.ts",
+    "source": "let remote = true\nremote = false\nlocation.href = remote ? '//external.example' : '/inside'\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "repeated-alias-external",
+    "file": "route.ts",
+    "source": "const slash = '/'\nlocation.href = slash + slash + 'cdn.example'\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "unknown-call-result",
+    "file": "route.ts",
+    "source": "location.assign(getDestination())\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": false
+  },
+  {
+    "id": "typed-satisfies",
+    "file": "route.ts",
+    "source": "location.href = '/internal' satisfies string\n",
+    "upstream": "next/no-location-assign-relative-destination",
+    "native": "makvv4(no-location-assign-relative-destination)",
+    "report": true,
+    "severity": 1
+  }
+]

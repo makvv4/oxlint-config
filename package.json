@@ -26,6 +26,10 @@
       "types": "./dist/formatter.d.ts",
       "import": "./dist/formatter.js"
     },
+    "./plugin": {
+      "types": "./dist/plugin/index.d.ts",
+      "default": "./dist/plugin/index.js"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {

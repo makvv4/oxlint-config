@@ -1,6 +1,6 @@
 # @makvv4/oxlint-config
 
-Shared **Oxlint + Oxfmt** configuration for JavaScript, TypeScript, Vue, Nuxt, and Node.js. Uses only native Oxlint rules, with no runtime dependencies on ESLint, Antfu, TypeScript ESLint, or deepmerge.
+Shared **Oxlint + Oxfmt** configuration for JavaScript, TypeScript, Vue, Nuxt, and Node.js. Uses built-in Oxlint rules and three bundled Oxlint JavaScript rules, with no runtime dependencies on ESLint or its plugins.
 
 The package is not yet published to npm. Until then, use a tarball created with `npm pack`.
 
@@ -68,7 +68,7 @@ export default vue
 | `vue`                 | `false` | Native rules for Vue script blocks                                         |
 | `nuxt`                | `false` | Enables Vue and ignores Nuxt build directories                             |
 | `node`                | `true`  | Node.js globals and available native Node rules                            |
-| `imports`             | `true`  | Native import checks and named-member sorting                              |
+| `imports`             | `true`  | Import checks, restricted paths, and named-member sorting                  |
 | `unicorn`             | `true`  | Unicorn rules and selected modernization checks                            |
 | `jsdoc`               | `true`  | Available JSDoc checks at warning severity                                 |
 | `jsx`                 | `true`  | Native JSX style checks in JSX/TSX files; no React framework preset        |
@@ -117,12 +117,24 @@ With `react: true`, Fast Refresh detects installed packages from the current wor
 
 In a monorepo you can set `react: { rootDir: './apps/web' }` to detect packages from that directory. To select integrations without detection, use `react: { fastRefresh: ['vite', 'react-router'] }`. The list replaces detection; `[]` disables detected exceptions. An explicit `nextjs: true` still enables Next exceptions when React is active.
 
+### Bundled Oxlint rules
+
+| Rule                                             | Enabled by                 | What it reports                                                                                                                                                            |
+| ------------------------------------------------ | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `makvv4/no-import-dist`                          | `imports` (default), error | Static imports such as `import '../lib/dist/file.js'` and the exact specifier `'dist'`. A package subpath such as `'pkg/dist/file.js'` is allowed.                         |
+| `makvv4/no-import-node-modules-by-path`          | `imports` (default), error | Static imports and direct `require('…')` calls with a literal containing `/node_modules/`, including absolute paths. Import by package name instead.                       |
+| `makvv4/no-location-assign-relative-destination` | `nextjs: true`, warning    | Navigation to an internal destination through the browser's `location.assign(...)` or `location.href = ...`. External URLs and locally shadowed `location` are left alone. |
+
+The two import rules follow Antfu's exceptions for `bin/` directories and source files named `bin` (for example, `bin.ts`). They do not check dynamic imports or re-exports. The navigation rule is independent of React; use Next's router or `redirect()` as appropriate. All three report diagnostics without editing source.
+
+The factory registers the bundled plugin automatically. To add another JS plugin while keeping these rules, pass `{ jsPlugins: ['@makvv4/oxlint-config/plugin', './my-plugin.js'] }` as the second argument. An explicit `jsPlugins: []` removes the bundled plugin and its preset rules. Disable individual rules through `rules`, using the IDs above.
+
 ### Overriding configuration
 
 The second argument is a regular Oxlint configuration object:
 
 - `rules`, `env`, `globals`, and `categories` are merged by key. Values such as `off` and `false` are preserved.
-- Global caller rules also override conflicting preset file-scope rules. Use the native rule names shown in `src/rules.ts` (for example, `typescript/consistent-type-definitions`).
+- Global caller rules also override conflicting preset file-scope rules. Use the rule IDs as configured by the preset (for example, `typescript/consistent-type-definitions`).
 - `overrides` are appended after the preset's overrides.
 - `plugins`, `ignorePatterns`, `settings`, `jsPlugins`, and `extends` are replaced by explicitly supplied values, including empty arrays. When replacing plugins, make sure the enabled rules match the resulting plugin list. Prefer disabling an unwanted preset through the first argument.
 - When replacing `ignorePatterns`, include `**/node_modules/**` in your list if dependencies should remain ignored. An explicit `[]` removes this default exclusion as well.
@@ -183,7 +195,7 @@ Add these scripts to your project:
 - Oxfmt formats Vue files but does not check template correctness. It also does not reproduce every Antfu rule, such as `reasonable-newline` and `top-level-function`.
 - Oxlint 1.93 skips `prefer-const` in Vue/Svelte because template assignments are invisible to script analysis. It also lacks Antfu's Vue ref-operand check, so expressions needing `.value` can pass. See the [audit of all 16 original fixture differences](docs/antfu-fixture-differences.md).
 - Class sorting does not replace the other checks in eslint-plugin-tailwindcss, such as shorthand usage, the position of `!`, and unnecessary arbitrary values.
-- Type-aware analysis is opt-in and does not cover Vue templates. React framework checks cover a subset of the Antfu plugin; Next.js lacks its relative location assignment rule.
+- Type-aware analysis is opt-in and does not cover Vue templates. React framework checks cover a subset of the Antfu plugin.
 - Export sorting, natural named-import ordering, tsconfig sorting, and semantic linting for JSON/YAML/TOML/Markdown are not reproduced. Oxfmt's wrapping and brace layout differ from Antfu.
 - Loading existing ESLint plugins through `jsPlugins` can bring back their transitive dependencies. This package does not guarantee a clean audit for your entire project.
 
@@ -198,7 +210,7 @@ npm run format:check
 npm pack
 ```
 
-`npm run compare:antfu` runs the real native tools on 18 vendored Antfu fixtures and reports exact matches and remaining diagnostics. Normal tests include 36 behavior expectations verified against Antfu 10.0.0. An optional isolated Antfu reference runner is documented in the comparison; ESLint is not added to this package's dependencies.
+`npm run compare:antfu` runs the real native tools on 18 vendored Antfu fixtures and reports exact matches and remaining diagnostics. Normal tests include shared diagnostic fixtures for the built-in presets and bundled plugin, verified against Antfu 10.0.0. An optional isolated Antfu reference runner is documented in the comparison; ESLint is not added to this package's dependencies.
 
 The comparison repeats safe lint fixes until stable, then invokes the real formatter CLI. Overlapping edits can require multiple `oxlint --fix` invocations in consumers too. Use `npm run compare:antfu -- --details-dir /tmp/antfu-review` with a new directory to retain every expected/actual file and a JSON report. The default run has three exact matches among 14 formatted files; skipped files and unchanged upstream inputs are identified separately.
 

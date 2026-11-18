@@ -13,7 +13,7 @@ ESLint-compatible API or a full port of every optional framework integration.
 | JavaScript              | 99 explicit core rules, plus a native equivalent for top-level await. Includes smart equality, console restrictions, empty catches, shorthand, callbacks, use-before-define, and unused-variable options.                                                                                      |
 | TypeScript              | 31 enabled entries in the TypeScript scope, including shared core rules. Strict syntax checks, interfaces, separate type imports, property method signatures, documented `@ts-expect-error`, and const-enum restrictions. `any`, non-null assertions, and both array notations remain allowed. |
 | Unicorn / modernization | All 15 rules in Antfu's default Unicorn subset, plus native date, array-some, and own-property checks approximating three e18e rules.                                                                                                                                                          |
-| Imports                 | Six native import rules plus named-member sorting. The native type-specifier option is `prefer-top-level`, whereas Antfu uses `top-level`.                                                                                                                                                     |
+| Imports                 | Six built-in import rules plus named-member sorting and two bundled Antfu import-path checks. The native type-specifier option is `prefer-top-level`, whereas Antfu uses `top-level`.                                                                                                          |
 | JSX style               | Native `react/jsx-curly-brace-presence` with Antfu's `propElementValues: always`, scoped to JSX/TSX. Disable with `jsx: false`; the full React option is separate.                                                                                                                             |
 | Node                    | Callback errors, exports assignment, constructor require, and path concatenation. Node globals are enabled by default, alongside browser and ECMAScript globals.                                                                                                                               |
 | JSDoc                   | Ten available checks at warning severity.                                                                                                                                                                                                                                                      |
@@ -44,7 +44,7 @@ Three complementary checks are included here:
 
 1. `fixtures/antfu-behavior.json` contains 36 focused positive/negative expectations. They were
    checked against the actual Antfu 10.0.0 configuration and the native CLI: **36/36 agree** on the
-   selected rule. A further **59/59** expectations agree for library mode (11), typed lint (27), React (7), Next (5), and accessibility (9). These checks compare selected diagnostics, not complete diagnostic output.
+   selected rule. A further **59/59** expectations agree for library mode (11), typed lint (27), React (7), Next (5), and accessibility (9). The bundled plugin adds **58/58** matches: 21 import-path cases and 37 Next navigation cases. These checks compare selected diagnostics, not complete diagnostic output.
 2. An isolated installation of Antfu 10.0.0 and ESLint 10.0.3 reproduced **6/6 original snapshots**:
    JavaScript, TypeScript, JSX, TSX, Vue JavaScript, and Vue TypeScript. This validates the chosen
    reference; it does not claim to run Antfu's complete Vitest/API/CLI/framework suite.
@@ -98,7 +98,7 @@ oracle_dir=$(mktemp -d)
 npm install --prefix "$oracle_dir" --legacy-peer-deps --ignore-scripts --no-audit --no-fund --save-exact \
   @antfu/eslint-config@10.0.0 eslint@10.0.3 typescript@6.0.3 @vue/compiler-sfc@3.5.44 \
   @eslint-react/eslint-plugin@5.28.6 @next/eslint-plugin-next@16.4.2 \
-  eslint-plugin-react-refresh@0.5.7 eslint-plugin-jsx-a11y@6.10.2
+  eslint-plugin-react-refresh@0.5.7 eslint-plugin-jsx-a11y@6.10.2 eslint-plugin-antfu@3.3.1
 npm run test:antfu-reference -- "$oracle_dir"
 ```
 
@@ -113,8 +113,13 @@ not automatic acceptance of new output. Normal CI uses vendored fixtures and nee
 | `type: 'lib'`         | Explicit TypeScript function return types, including Antfu's callback, IIFE and path exceptions.                                                       | Explicit e18e options are outside this preset. Antfu 10's factory does not pass its top-level `type` to e18e either.                                              |
 | `typeAware: true`     | All 19 enabled rules in Antfu's typed TypeScript group, including its strict-boolean and return-await options. Tested with `oxlint-tsgolint` 7.0.2007. | Uses Oxlint project discovery, not Antfu's parser API; excludes Vue SFCs and does not run `tsc`.                                                                  |
 | `react: true`         | Selected hooks, JSX, DOM, lifecycle and compiler rules. Fast Refresh detects Vite, Remix, React Router framework packages and Next.                    | No equivalent for the full upstream set, including web API cleanup and server-component checks. Native lifecycle and children diagnostics may differ in severity. |
-| `nextjs: true`        | 21 of 22 rules from the pinned Next.js recommended + Core Web Vitals sets at their upstream severity.                                                  | Oxlint lacks `no-location-assign-relative-destination`.                                                                                                           |
+| `nextjs: true`        | All 22 rules from the pinned Next.js recommended + Core Web Vitals sets: 21 built-in rules and one bundled Oxlint JS rule.                             | The navigation rule checks browser globals and statically recognizable URL destinations. It does not resolve routes at runtime.                                   |
 | `accessibility: true` | All 31 active JSX accessibility rule names from Antfu's `jsx: { a11y: true }`, including its role and handler options.                                 | Applies to JSX/TSX only. Matching names do not guarantee identical analyzers or autofixes.                                                                        |
+
+The package includes three first-party rules using [Oxlint's JS plugin API](https://oxc.rs/docs/guide/usage/linter/js-plugins.html).
+The import rules follow `eslint-plugin-antfu@3.3.1` and [Antfu's bin exceptions](https://github.com/antfu/eslint-config/blob/bb2013690a517ea9b369d36d79a5708356326a64/src/configs/disables.ts).
+The Next rule follows [the Next 16.4.2 navigation check](https://github.com/vercel/next.js/blob/v16.4.2/packages/eslint-plugin-next/src/rules/no-location-assign-relative-destination.ts).
+Shared fixtures exercise both report and non-report cases against the pinned upstream rules and the real Oxlint CLI. The navigation rule reads literals, route tables, aliases and simple expressions without running application code. Some expressions that Next's evaluator folds, such as `String('/account')`, are intentionally skipped.
 
 The optional oracle installs plugins only in its isolated comparison directory. `--legacy-peer-deps` is needed there because the reference JSX accessibility package does not declare ESLint 10 in its peer range. The native presets never import those plugins.
 
@@ -141,7 +146,7 @@ The optional oracle installs plugins only in its isolated comparison directory. 
   `_alias` can remain: Oxlint applies the variable exemption to imports too, whereas Antfu uses a separate import rule. `no-focused-tests` covers native Vitest patterns, not every framework
   recognized by `eslint-plugin-no-only-tests`. e18e approximations are not exhaustive.
 - **Unavailable checks:** most regexp and e18e rules, some Node/JSDoc rules, ESLint-comment rules,
-  custom Antfu import restrictions, and generic ESTree selector restrictions have no complete
+  Antfu import deduplication, and generic ESTree selector restrictions have no complete
   native equivalent here. The const-enum selector is covered; TypeScript export assignment is not.
   `dot-notation` in this Oxlint version requires type-aware linting and is enabled only in the opt-in TS scope.
 - **Other languages/frameworks:** no JSON/JSONC/YAML/TOML/Markdown semantic lint, embedded Markdown

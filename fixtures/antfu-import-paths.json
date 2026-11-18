@@ -1,0 +1,178 @@
+[
+  {
+    "id": "dist-relative-directory",
+    "file": "src/entry.js",
+    "source": "import '../library/dist'\n",
+    "upstream": "antfu/no-import-dist",
+    "native": "makvv4(no-import-dist)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "dist-type-import",
+    "file": "src/entry.ts",
+    "source": "import type { Model } from './dist/model'\nexport type Alias = Model\n",
+    "upstream": "antfu/no-import-dist",
+    "native": "makvv4(no-import-dist)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "dist-exact-name",
+    "file": "src/entry.js",
+    "source": "import 'dist'\n",
+    "upstream": "antfu/no-import-dist",
+    "native": "makvv4(no-import-dist)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "dist-not-a-segment",
+    "file": "src/entry.js",
+    "source": "import '../dist-client/entry.js'\n",
+    "upstream": "antfu/no-import-dist",
+    "native": "makvv4(no-import-dist)",
+    "report": false
+  },
+  {
+    "id": "dist-package-subpath",
+    "file": "src/entry.js",
+    "source": "import 'library/dist/entry.js'\n",
+    "upstream": "antfu/no-import-dist",
+    "native": "makvv4(no-import-dist)",
+    "report": false
+  },
+  {
+    "id": "dist-absolute-path",
+    "file": "src/entry.js",
+    "source": "import '/workspace/dist/index.js'\n",
+    "upstream": "antfu/no-import-dist",
+    "native": "makvv4(no-import-dist)",
+    "report": false
+  },
+  {
+    "id": "dist-reexport",
+    "file": "src/entry.js",
+    "source": "export { value } from '../dist/index.js'\n",
+    "upstream": "antfu/no-import-dist",
+    "native": "makvv4(no-import-dist)",
+    "report": false
+  },
+  {
+    "id": "dist-non-static-imports",
+    "file": "src/entry.js",
+    "source": "export const load = () => import('../dist/index.js')\nexport const read = () => require('../dist/index.js')\n",
+    "upstream": "antfu/no-import-dist",
+    "native": "makvv4(no-import-dist)",
+    "report": false
+  },
+  {
+    "id": "dist-bin-directory",
+    "file": "tools/bin/nested/entry.mjs",
+    "source": "import '../../dist/main.js'\n",
+    "upstream": "antfu/no-import-dist",
+    "native": "makvv4(no-import-dist)",
+    "report": false
+  },
+  {
+    "id": "dist-scripts-checked",
+    "file": "scripts/build.js",
+    "source": "import '../dist/main.js'\n",
+    "upstream": "antfu/no-import-dist",
+    "native": "makvv4(no-import-dist)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "modules-static-relative",
+    "file": "src/entry.js",
+    "source": "import '../pkg/node_modules/dep'\n",
+    "upstream": "antfu/no-import-node-modules-by-path",
+    "native": "makvv4(no-import-node-modules-by-path)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "modules-absolute-require",
+    "file": "src/entry.cjs",
+    "source": "module.exports = require('/workspace/node_modules/dep')\n",
+    "upstream": "antfu/no-import-node-modules-by-path",
+    "native": "makvv4(no-import-node-modules-by-path)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "modules-shadowed-require",
+    "file": "src/entry.js",
+    "source": "export function read(require) { return require('../node_modules/dep') }\n",
+    "upstream": "antfu/no-import-node-modules-by-path",
+    "native": "makvv4(no-import-node-modules-by-path)",
+    "report": true,
+    "severity": 2
+  },
+  {
+    "id": "modules-bare-name",
+    "file": "src/entry.js",
+    "source": "import 'node_modules/dep'\n",
+    "upstream": "antfu/no-import-node-modules-by-path",
+    "native": "makvv4(no-import-node-modules-by-path)",
+    "report": false
+  },
+  {
+    "id": "modules-exact-directory",
+    "file": "src/entry.js",
+    "source": "import '../node_modules'\n",
+    "upstream": "antfu/no-import-node-modules-by-path",
+    "native": "makvv4(no-import-node-modules-by-path)",
+    "report": false
+  },
+  {
+    "id": "modules-lookalike-and-package",
+    "file": "src/entry.js",
+    "source": "import '../node_modules_cache/dep'\nimport 'dep/subpath'\n",
+    "upstream": "antfu/no-import-node-modules-by-path",
+    "native": "makvv4(no-import-node-modules-by-path)",
+    "report": false
+  },
+  {
+    "id": "modules-reexport",
+    "file": "src/entry.js",
+    "source": "export * from '../node_modules/dep'\n",
+    "upstream": "antfu/no-import-node-modules-by-path",
+    "native": "makvv4(no-import-node-modules-by-path)",
+    "report": false
+  },
+  {
+    "id": "modules-dynamic-import",
+    "file": "src/entry.js",
+    "source": "export const load = () => import('../node_modules/dep')\n",
+    "upstream": "antfu/no-import-node-modules-by-path",
+    "native": "makvv4(no-import-node-modules-by-path)",
+    "report": false
+  },
+  {
+    "id": "modules-require-expression",
+    "file": "src/entry.js",
+    "source": "const path = '../node_modules/dep'\nexport const a = require(path)\nexport const b = require(`../node_modules/dep`)\nexport const c = require.resolve('../node_modules/dep')\n",
+    "upstream": "antfu/no-import-node-modules-by-path",
+    "native": "makvv4(no-import-node-modules-by-path)",
+    "report": false
+  },
+  {
+    "id": "modules-bin-file",
+    "file": "pkg/bin.cjs",
+    "source": "module.exports = require('./node_modules/dep')\n",
+    "upstream": "antfu/no-import-node-modules-by-path",
+    "native": "makvv4(no-import-node-modules-by-path)",
+    "report": false
+  },
+  {
+    "id": "modules-bin-lookalike",
+    "file": "src/binary.js",
+    "source": "import './node_modules/dep'\n",
+    "upstream": "antfu/no-import-node-modules-by-path",
+    "native": "makvv4(no-import-node-modules-by-path)",
+    "report": true,
+    "severity": 2
+  }
+]

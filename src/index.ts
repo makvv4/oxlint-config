@@ -1,5 +1,6 @@
 import type { OxlintConfig } from 'oxlint'
 import type { ReactPresetOptions } from './frameworks.js'
+import { fileURLToPath } from 'node:url'
 import { accessibilityRules } from './accessibility.js'
 import { isEditorEnvironment } from './editor.js'
 import { createReactRules, nextjsRules } from './frameworks.js'
@@ -55,6 +56,8 @@ export type ConfigOverrides = OxlintConfig
 
 const sourceExtension = '{js,mjs,cjs,jsx,ts,mts,cts,tsx}'
 const tsFiles = '**/*.{ts,mts,cts,tsx}'
+const pluginPath = fileURLToPath(new URL('./plugin/index.js', import.meta.url))
+const pluginExport = '@makvv4/oxlint-config/plugin'
 const scriptFiles = `**/scripts/**/*.${sourceExtension}`
 const configFiles = [`**/*.config.${sourceExtension}`, `**/*.config.*.${sourceExtension}`]
 const testFiles = [
@@ -74,6 +77,15 @@ export function createConfig(
   const useTypescript = options.typescript ?? true
   const useVue = options.vue === true || options.nuxt === true
   const useNode = options.node ?? true
+  const useImports = options.imports ?? true
+  const { jsPlugins = useImports || options.nextjs ? [pluginPath] : undefined } = overrides
+  const useBundledRules = jsPlugins?.some(entry => {
+    const specifier = typeof entry === 'string' ? entry : entry.specifier
+    return (
+      (typeof entry === 'string' || entry.name === 'makvv4')
+      && (specifier === pluginPath || specifier === pluginExport)
+    )
+  })
   const isInEditor = options.isInEditor ?? isEditorEnvironment()
   // The node plugin also supplies the native equivalent of antfu/no-top-level-await.
   const plugins: NonNullable<OxlintConfig['plugins']> = ['eslint', 'node', 'oxc']
@@ -85,9 +97,13 @@ export function createConfig(
     plugins.push('unicorn')
     Object.assign(rules, structuredClone(unicornRules))
   }
-  if (options.imports !== false) {
+  if (useImports) {
     plugins.push('import')
     Object.assign(rules, structuredClone(importsRules))
+    if (useBundledRules) {
+      rules['makvv4/no-import-dist'] = 'error'
+      rules['makvv4/no-import-node-modules-by-path'] = 'error'
+    }
   }
   if (options.jsdoc !== false) {
     plugins.push('jsdoc')
@@ -158,7 +174,13 @@ export function createConfig(
   }
   if (options.nextjs) {
     plugins.push('nextjs')
-    fileOverrides.push({ files: [`**/*.${sourceExtension}`], rules: structuredClone(nextjsRules) })
+    fileOverrides.push({
+      files: [`**/*.${sourceExtension}`],
+      rules: {
+        ...structuredClone(nextjsRules),
+        ...(useBundledRules ? { 'makvv4/no-location-assign-relative-destination': 'warn' } : {}),
+      },
+    })
   }
   if (options.accessibility) {
     plugins.push('jsx-a11y')
@@ -194,8 +216,16 @@ export function createConfig(
     rules: { 'no-console': 'off', 'node/no-top-level-await': 'off' },
   })
 
+  if (useImports && useBundledRules) {
+    fileOverrides.push({
+      files: ['**/bin/**/*', `**/bin.${sourceExtension}`],
+      rules: { 'makvv4/no-import-dist': 'off', 'makvv4/no-import-node-modules-by-path': 'off' },
+    })
+  }
+
   const config: OxlintConfig = {
     plugins,
+    ...(jsPlugins ? { jsPlugins } : {}),
     // Select rules explicitly: Oxlint's correctness category adds rules Antfu does not enable.
     categories: { correctness: 'off' },
     rules,
