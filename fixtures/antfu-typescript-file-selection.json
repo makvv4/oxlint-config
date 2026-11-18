@@ -1,0 +1,21 @@
+{
+  "included": [
+    "src/consumer.ts.js",
+    "src/module.mjs",
+    "tools/setup.cjs",
+    "view.jsx",
+    "components/Example.vue"
+  ],
+  "excluded": [
+    "index.ts",
+    "src/app.tsx",
+    "src/esm.mts",
+    "src/common.cts",
+    "src/views/esm.mtsx",
+    "src/views/common.ctsx",
+    "types/main.d.ts",
+    "types/esm.d.mts",
+    "types/common.d.cts",
+    "test/service.spec.ts"
+  ]
+}

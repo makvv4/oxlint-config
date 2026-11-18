@@ -1,11 +1,12 @@
 import type { OxlintConfig } from 'oxlint'
 import type { ReactPresetOptions } from './frameworks.js'
 import { accessibilityRules } from './accessibility.js'
+import { isEditorEnvironment } from './editor.js'
 import { createReactRules, nextjsRules } from './frameworks.js'
 import { scriptIgnorePatterns } from './ignores.js'
 import {
+  createJavascriptRules,
   importsRules,
-  javascriptRules,
   jsdocRules,
   jsxRules,
   nodeRules,
@@ -22,11 +23,15 @@ export type { ReactPresetOptions } from './frameworks.js'
 export interface PresetOptions {
   type?: 'app' | 'lib'
   typeAware?: boolean
+  /** Overrides editor environment detection, including in CI and Git hooks. */
+  isInEditor?: boolean
   react?: boolean | ReactPresetOptions
   nextjs?: boolean
   accessibility?: boolean
   /** TypeScript is enabled by default. */
   typescript?: boolean
+  /** Excludes TypeScript files from linting independently of the TypeScript rules. */
+  ignoreTypeScript?: boolean
   /** Checks Vue script blocks; Oxlint does not lint templates. */
   vue?: boolean
   /** Enables Vue checks and excludes generated Nuxt directories. */
@@ -69,9 +74,10 @@ export function createConfig(
   const useTypescript = options.typescript ?? true
   const useVue = options.vue === true || options.nuxt === true
   const useNode = options.node ?? true
+  const isInEditor = options.isInEditor ?? isEditorEnvironment()
   // The node plugin also supplies the native equivalent of antfu/no-top-level-await.
   const plugins: NonNullable<OxlintConfig['plugins']> = ['eslint', 'node', 'oxc']
-  const rules = structuredClone(javascriptRules)
+  const rules = createJavascriptRules(isInEditor)
   rules['node/no-top-level-await'] = 'error'
   const fileOverrides: NonNullable<OxlintConfig['overrides']> = []
 
@@ -171,6 +177,7 @@ export function createConfig(
       files: [...testFiles],
       rules: {
         ...structuredClone(testRules),
+        'vitest/no-focused-tests': isInEditor ? 'warn' : 'error',
         'node/no-top-level-await': 'off',
         'no-unused-expressions': 'off',
       },
@@ -197,7 +204,10 @@ export function createConfig(
       reportUnusedDisableDirectives: 'error',
       ...(useTypescript && options.typeAware ? { typeAware: true } : {}),
     },
-    ignorePatterns: [...scriptIgnorePatterns],
+    ignorePatterns: [
+      ...scriptIgnorePatterns,
+      ...(options.ignoreTypeScript ? ['**/*.{ts,tsx,mts,cts,mtsx,ctsx}'] : []),
+    ],
     overrides: fileOverrides,
   }
 

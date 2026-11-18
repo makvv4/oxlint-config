@@ -4,7 +4,7 @@ import type { OxlintConfig } from 'oxlint'
 // Adapted under the MIT license; see THIRD_PARTY_NOTICES.
 type Rules = NonNullable<OxlintConfig['rules']>
 
-export const javascriptRules: Rules = {
+const javascriptRules: Rules = {
   'accessor-pairs': [
     'error',
     {
@@ -160,17 +160,6 @@ export const javascriptRules: Rules = {
       allowTernary: true,
     },
   ],
-  'no-unused-vars': [
-    'error',
-    {
-      args: 'after-used',
-      argsIgnorePattern: '^_',
-      fix: { imports: 'safe-fix', variables: 'off' },
-      ignoreRestSiblings: true,
-      vars: 'all',
-      varsIgnorePattern: '^_',
-    },
-  ],
   'no-use-before-define': [
     'error',
     {
@@ -209,13 +198,6 @@ export const javascriptRules: Rules = {
       allowUnboundThis: true,
     },
   ],
-  'prefer-const': [
-    'error',
-    {
-      destructuring: 'all',
-      ignoreReadBeforeAssign: true,
-    },
-  ],
   'prefer-exponentiation-operator': 'error',
   'prefer-promise-reject-errors': 'error',
   'prefer-regex-literals': [
@@ -244,6 +226,27 @@ export const javascriptRules: Rules = {
   ],
   'vars-on-top': 'error',
   'yoda': ['error', 'never'],
+}
+
+export function createJavascriptRules(isInEditor: boolean): Rules {
+  return {
+    ...structuredClone(javascriptRules),
+    'no-unused-vars': [
+      'error',
+      {
+        args: 'after-used',
+        argsIgnorePattern: '^_',
+        fix: { imports: isInEditor ? 'off' : 'safe-fix', variables: 'off' },
+        ignoreRestSiblings: true,
+        vars: 'all',
+        varsIgnorePattern: '^_',
+      },
+    ],
+    'prefer-const': [
+      isInEditor ? 'warn' : 'error',
+      { destructuring: 'all', ignoreReadBeforeAssign: true },
+    ],
+  }
 }
 
 export const unicornRules: Rules = {
@@ -424,7 +427,6 @@ export const testRules: Rules = {
   ],
   'vitest/no-identical-title': 'error',
   'vitest/no-import-node-test': 'error',
-  'vitest/no-focused-tests': 'error',
   'vitest/prefer-hooks-in-order': 'error',
   'vitest/prefer-lowercase-title': 'error',
 }

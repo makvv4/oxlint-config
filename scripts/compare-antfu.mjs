@@ -46,7 +46,7 @@ function firstDifferentLine(expected, actual) {
 
 /** Run safe native fixes to convergence and the real Oxfmt CLI/config resolver. */
 export async function compareAntfu({
-  config = createConfig({ vue: true }),
+  config = createConfig({ vue: true, isInEditor: false }),
   formatting = formatter,
   oxfmtBin = defaultOxfmtBin,
   detailsDirectory,

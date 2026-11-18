@@ -1,0 +1,51 @@
+[
+  {
+    "file": "source.js",
+    "source": "let value = 42\nexport const doubled = value * 2\n",
+    "native": "eslint(prefer-const)",
+    "upstream": "prefer-const",
+    "editorSeverity": 1,
+    "cliSeverity": 2
+  },
+  {
+    "file": "typed.ts",
+    "source": "let value = 42\nexport const doubled = value * 2\n",
+    "native": "eslint(prefer-const)",
+    "upstream": "prefer-const",
+    "editorSeverity": 2,
+    "cliSeverity": 2
+  },
+  {
+    "file": "focused.test.ts",
+    "source": "import { it } from 'vitest'\n\nit.only('works', () => {})\n",
+    "native": "vitest(no-focused-tests)",
+    "upstream": "test/no-only-tests",
+    "editorSeverity": 1,
+    "cliSeverity": 2
+  },
+  {
+    "file": "imports.js",
+    "source": "import { unused } from './dep.js'\nimport './setup.js'\n",
+    "native": "eslint(no-unused-vars)",
+    "upstream": "no-unused-vars",
+    "editorSeverity": 2,
+    "cliSeverity": 2
+  },
+  {
+    "file": "imports.ts",
+    "source": "import { unused } from './dep.js'\nimport './setup.js'\n",
+    "native": "eslint(no-unused-vars)",
+    "upstream": "unused-imports/no-unused-imports",
+    "editorSeverity": 1,
+    "nativeEditorSeverity": 2,
+    "cliSeverity": 2
+  },
+  {
+    "file": "locals.js",
+    "source": "const unusedLocal = 1\nexport {}\n",
+    "native": "eslint(no-unused-vars)",
+    "upstream": "no-unused-vars",
+    "editorSeverity": 2,
+    "cliSeverity": 2
+  }
+]

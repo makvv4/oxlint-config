@@ -11,7 +11,7 @@ import { compareAntfu } from '../scripts/compare-antfu.mjs'
 
 test('native diagnostics reproduce behavior checked against Antfu 10.0.0', async t => {
   const cases = readCases('behavior')
-  const report = runNativeCases(t, createConfig({ vue: true }), cases)
+  const report = runNativeCases(t, createConfig({ vue: true, isInEditor: false }), cases)
   for (const entry of cases) await t.test(entry.id, () => assertNativeCase(report, entry))
 })
 

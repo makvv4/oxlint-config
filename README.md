@@ -29,7 +29,7 @@ export default createConfig()
 
 The defaults approximate Antfu 10 with explicitly selected native JavaScript, TypeScript, import, Unicorn, Node, JSDoc, and Vitest rules. They disallow `var`, `debugger`, and ordinary `console.log` calls; allow `console.warn` and `console.error`; prefer `const`, interfaces, and separate type imports; and check unused variables. Unused parameters and variables prefixed with `_` are allowed. Both `T[]` and `Array<T>` are accepted, and `any` is not banned.
 
-`oxlint --fix` removes unused value imports and type imports. It drops an entire import when the last binding is unused, but leaves an explicit side-effect import (`import './setup'`) and an unused local variable's initializer in place. If a module must run for its side effects, import it explicitly. Bindings whose names start with `_` retain the preset's unused-variable exemption.
+In CLI mode, `oxlint --fix` removes unused value imports and type imports. It drops an entire import when the last binding is unused, but leaves an explicit side-effect import (`import './setup'`) and an unused local variable's initializer in place. If a module must run for its side effects, import it explicitly. Bindings whose names start with `_` retain the preset's unused-variable exemption.
 
 Browser and Node globals are available by default. `no-undef` checks JavaScript; TypeScript files rely on your typecheck. TypeScript rules are scoped to TS/TSX and enabled Vue files. Vitest rules apply only to test/spec/bench/benchmark files and `__tests__`; set `test: false` for other test frameworks, including `node:test`.
 
@@ -63,6 +63,8 @@ export default vue
 | `createConfig` option | Default | Purpose                                                                    |
 | --------------------- | ------- | -------------------------------------------------------------------------- |
 | `typescript`          | `true`  | TypeScript rules                                                           |
+| `ignoreTypeScript`    | `false` | Skip standalone TypeScript sources and declarations in Oxlint              |
+| `isInEditor`          | Auto    | Force editor (`true`) or CLI (`false`) behavior                            |
 | `vue`                 | `false` | Native rules for Vue script blocks                                         |
 | `nuxt`                | `false` | Enables Vue and ignores Nuxt build directories                             |
 | `node`                | `true`  | Node.js globals and available native Node rules                            |
@@ -78,6 +80,20 @@ export default vue
 | `accessibility`       | `false` | JSX accessibility rules in JSX/TSX, independent of React and JSX style     |
 
 `nuxt: true` enables Vue even when `vue: false`. The `node` preset also includes TypeScript; for plain JavaScript, use `createConfig({ node: true, typescript: false })`.
+
+### Editor mode and TypeScript file selection
+
+With no `isInEditor` option, the factory follows Antfu's environment checks for VS Code, JetBrains, Vim/Neovim, and Zed (except its terminal). CI, Git hook markers, and an npm lifecycle script starting with `lint-staged` take precedence over editor markers. To force either mode, use `createConfig({ isInEditor: true })` or `createConfig({ isInEditor: false })`.
+
+In editor mode, JavaScript `prefer-const` and focused Vitest tests (`it.only`) are warnings. The TypeScript preset keeps `prefer-const` at error, as in Antfu. `oxlint --fix` preserves unused imports, so saving an unfinished file does not remove them. Oxlint uses the same rule for unused imports and locals, so both still report errors. Oxlint can still fix `let` to `const` in editor mode.
+
+To leave standalone TypeScript files out of a lint run:
+
+```ts
+export default createConfig({ ignoreTypeScript: true })
+```
+
+This skips TypeScript sources, JSX written in TypeScript, and declarations (including `.mts`, `.cts`, and `.d.ts`). JavaScript, JSX, and Vue files remain lint targets, including Vue scripts with `lang="ts"`. In contrast, `typescript: false` alone keeps standalone TS files in the lint run with base rules. The two options can be combined. An explicit `ignorePatterns` in the second argument replaces the preset exclusions, including this one. Neither option changes Oxfmt file selection.
 
 ### Libraries and optional checks
 

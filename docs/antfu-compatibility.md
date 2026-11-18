@@ -59,6 +59,10 @@ Three complementary checks are included here:
 The reference runner also checks the exact `--fix` output for unused imports in JS and TS.
 A separate file-selection fixture compares Antfu's ignored paths with the files actually rewritten
 by Oxfmt. The native CLI tests use a standalone consumer directory without a `.gitignore`.
+The editor fixtures compare severity in editor and CLI modes on both engines, and the output of
+`--fix` on real Oxlint. The TypeScript file-selection fixture compares 15 paths with Antfu's
+`typescript: false` configuration. Oxlint 1.93 already omits `.mtsx` and `.ctsx` from directory
+discovery; their absence alone does not demonstrate the new ignore setting.
 
 The initial comparison matched only 2/18. Its `prefer-template` residual was an invocation problem,
 not a missing fixer: a second ordinary safe-fix pass resolves overlapping edits. Its unsupported
@@ -145,7 +149,16 @@ The optional oracle installs plugins only in its isolated comparison directory. 
   Formatting a file is not equivalent to those checks.
 - **API and types:** framework presets are enabled explicitly and the factory returns a plain object.
   Within the React preset, only the Fast Refresh exceptions are detected from installed packages. `typescript: false` disables TS-specific rules rather than ignoring TS files.
-  Editor-specific severity changes and automatic activation of presets are not reproduced. Keep `tsc`, `vue-tsc`, or `nuxt typecheck`.
+  Set `ignoreTypeScript: true` separately to skip standalone TS files while retaining Vue scripts.
+  Keep `tsc`, `vue-tsc`, or `nuxt typecheck`.
+- **Editor mode:** explicit `isInEditor` takes precedence over [Antfu's environment checks](https://github.com/antfu/eslint-config/blob/bb2013690a517ea9b369d36d79a5708356326a64/src/utils.ts).
+  JavaScript `prefer-const` and focused tests become warnings; the TS preset keeps
+  `prefer-const` at error. Both engines preserve unused imports under editor `--fix`.
+  Antfu uses a separate unused-import rule: in TS it warns in editor mode; in JS a core error
+  can accompany the warning. Oxlint keeps its combined unused-variable rule at error to preserve
+  local-variable diagnostics. Antfu also disables the fixes for `prefer-const` and focused tests;
+  Oxlint can still change `let` to `const` under ordinary `--fix`. A focused test is retained by
+  ordinary `--fix` in Oxlint 1.93 but can be changed with `--fix-suggestions`.
 
 For each remaining area, full parity requires either upstream native capabilities, a separately
 scoped feature, or bringing ESLint plugins back. This package retains zero runtime dependencies

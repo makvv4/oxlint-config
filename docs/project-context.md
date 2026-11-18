@@ -37,11 +37,14 @@ not reconstructed, so JavaScript auto-imports need caller globals or a rule over
 
 Defaults now match many more Antfu choices: smart equality, restricted console calls,
 interfaces, separate type imports, property-style method signatures, strict TS syntax checks,
-Node protocol imports, selected modernization checks, and scoped test rules. Normal `--fix` removes unused import bindings but preserves bare imports and local declarations. Both array
+Node protocol imports, selected modernization checks, and scoped test rules. In CLI mode `--fix` removes unused import bindings but preserves bare imports and local declarations. Both array
 notations and `any` are allowed. JSDoc and selected Vue checks preserve warning severity.
 Generated/cache/build/dependency directories are excluded, including nested node_modules,
 dist, coverage, .nuxt, and .output. Scripts, CLI files, configs, declarations, and test files
-receive scoped exceptions. Native JSX style checks normalize literal and element props; they do not enable a React framework preset. Set `test: false` for a framework other than Vitest, including node:test.
+receive scoped exceptions. `ignoreTypeScript: true` excludes standalone TS files and declarations without excluding Vue;
+`typescript: false` alone disables TS rules and leaves file selection unchanged. Editor mode
+(`isInEditor`, auto-detected unless explicitly set) preserves unused imports and warns for
+JavaScript `prefer-const` and focused Vitest tests. Native JSX style checks normalize literal and element props; they do not enable a React framework preset. Set `test: false` for a framework other than Vitest, including node:test.
 
 Merge behavior remains part of the API contract:
 

@@ -85,12 +85,15 @@ for (const profile of ['react', 'nextjs'])
   )
 
 const fixtureRoot = fileURLToPath(new URL('../fixtures/antfu/', import.meta.url))
-const fixer = new ESLint({
-  cwd: resolve(directory),
-  overrideConfigFile: true,
-  fix: true,
-  overrideConfig: await antfu(defaults),
-})
+async function referenceLinter(options = {}, fix = false) {
+  return new ESLint({
+    cwd: resolve(directory),
+    overrideConfigFile: true,
+    fix,
+    overrideConfig: await antfu({ ...defaults, ...options }),
+  })
+}
+const fixer = await referenceLinter({}, true)
 const importFixes = readCases('unused-import-fixes')
 for (const { file, source, expected } of importFixes) {
   const [result] = await fixer.lintText(source, { filePath: file })
@@ -98,10 +101,14 @@ for (const { file, source, expected } of importFixes) {
   assert.equal(result.output ?? source, expected, file)
 }
 console.log(`Antfu 10.0.0: ${importFixes.length} unused-import fixes verified byte for byte`)
-const { included, excluded } = readCases('file-selection')
-for (const file of included) assert.equal(await fixer.isPathIgnored(file), false, file)
-for (const file of excluded) assert.equal(await fixer.isPathIgnored(file), true, file)
-console.log(`Antfu 10.0.0: ${included.length + excluded.length} path selections verified`)
+async function checkSelection(fixture, linter) {
+  const { included, excluded } = readCases(fixture)
+  for (const file of included) assert.equal(await linter.isPathIgnored(file), false, file)
+  for (const file of excluded) assert.equal(await linter.isPathIgnored(file), true, file)
+  console.log(`Antfu 10.0.0: ${included.length + excluded.length} paths verified (${fixture})`)
+}
+await checkSelection('file-selection', fixer)
+await checkSelection('typescript-file-selection', await referenceLinter({ typescript: false }))
 
 const files = ['javascript.js', 'typescript.ts', 'jsx.jsx', 'tsx.tsx', 'vue.vue', 'vue-ts.vue']
 for (const file of files) {
@@ -114,4 +121,23 @@ for (const file of files) {
 }
 console.log(
   `Antfu 10.0.0: ${files.length}/${files.length} original JS/TS/JSX/TSX/Vue snapshots reproduced`,
+)
+
+const modeCases = readCases('editor')
+for (const isInEditor of [false, true]) {
+  const linter = await referenceLinter({ isInEditor })
+  for (const { file, source, upstream, editorSeverity, cliSeverity } of modeCases) {
+    const [result] = await linter.lintText(source, { filePath: file })
+    const severity = result.messages.find(m => m.ruleId === upstream)?.severity
+    assert.equal(severity, isInEditor ? editorSeverity : cliSeverity, file)
+  }
+}
+const editorFixer = await referenceLinter({ isInEditor: true }, true)
+for (const { file, source } of modeCases) {
+  const [result] = await editorFixer.lintText(source, { filePath: file })
+  assert.equal(result.fatalErrorCount, 0, file)
+  assert.equal(result.output ?? source, source, file)
+}
+console.log(
+  `Antfu 10.0.0: editor/CLI severities and editor fixes verified for ${modeCases.length} files`,
 )

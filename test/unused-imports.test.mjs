@@ -29,7 +29,7 @@ function fix(t, config) {
 }
 
 test('--fix removes unused value and type imports but preserves bare imports and local declarations', t => {
-  const { report, read } = fix(t, createConfig())
+  const { report, read } = fix(t, createConfig({ isInEditor: false }))
   for (const { file, expected } of cases) assert.equal(read(file), expected, file)
   assert.deepEqual(
     report.diagnostics.map(d => [d.filename, d.code]),
